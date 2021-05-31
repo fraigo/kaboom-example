@@ -36,19 +36,30 @@
         plugins: [ peditPlugin, asepritePlugin, kbmspritePlugin ]
     });
     loadRoot("./images/");
-    loadSprite("pac1", "pacman1.png");
-    loadSprite("pac2", "pacman2.png");
+    loadSprite("pac1a", "pac1a.png");
+    loadSprite("pac1b", "pac1b.png");
+    loadSprite("pac2a", "pac2a.png");
+    loadSprite("pac2b", "pac2b.png");
     loadSprite("coin1", "coin.png");
     scene("main", () => {
         gravity(980);
         var player = add([
-            sprite("pac1"),
-		    pos(20, 350),
+            sprite("pac1a"),
+		    pos(30, 350),
             "player",
             scale(1),
             origin("center"),
             body(),
-            {vel:100}
+            {vel:100,main:"pac1a",alt:"pac1b",startx:30}
+        ]);
+        var player2 = add([
+            sprite("pac2a"),
+		    pos(width()-30, 350),
+            "player",
+            scale(1),
+            origin("center"),
+            body(),
+            {vel:100,main:"pac2a",alt:"pac2b",startx:width()-30}
         ]);
         add([
             sprite("coin1"),
@@ -59,9 +70,9 @@
             body(),
             {vel:5}
         ]);
-        add([
-            rect(width(), 12),
-            pos(0, 380),
+        var bottom=add([
+            rect(width()-40, 12),
+            pos(20, 380),
             origin("topleft"),
             solid(),
         ]);
@@ -72,60 +83,73 @@
             solid(),
         ]);
         add([
-            rect(width()/3, 12),
-            pos(100, 160),
-            origin("topleft"),
-            solid(),
-        ]);
-        add([
-            rect(width()/3, 12),
-            pos(660, 200),
+            rect(width()/4, 12),
+            pos(120, 160),
             origin("topleft"),
             solid(),
         ]);
         add([
             rect(width()/5, 12),
+            pos(660, 200),
+            origin("topleft"),
+            solid(),
+        ]);
+        add([
+            rect(width()/6, 12),
             pos(440, 40),
             origin("topleft"),
             solid(),
         ]);
         const JUMP_FORCE = 490;
-        player.on("grounded", () => {
-            player.changeSprite("pac1");
-        })
         keyPress("up", () => {
             if (player.grounded()){
                 player.jump(JUMP_FORCE);
-                player.changeSprite("pac2");
+                player.changeSprite("pac1b");
+            }
+        });
+        keyPress("w", () => {
+            if (player2.grounded()){
+                player2.jump(JUMP_FORCE);
+                player2.changeSprite("pac2b");
             }
         });
         keyDown("left", () => {
             player.scale.x=-1
             player.move(vec2(-player.vel,0))
-            if (Math.round(player.pos.x/8)%2==0){
-                player.changeSprite("pac2");
-            } else {
-                player.changeSprite("pac1");
-            }
+        })
+        keyDown("a", () => {
+            player2.scale.x=-1
+            player2.move(vec2(-player2.vel,0))
         })
         keyDown("right", () => {
             player.scale.x=1
             player.move(vec2(player.vel,0))
         })
+        keyDown("d", () => {
+            player2.scale.x=1
+            player2.move(vec2(player2.vel,0))
+        })
         action("player", function(p){
-            if (Math.round(player.pos.x/8)%2==0){
-                player.changeSprite("pac2");
+            if (Math.round(p.pos.x/8)%2==0){
+                p.changeSprite(p.main);
             } else {
-                player.changeSprite("pac1");
+                p.changeSprite(p.alt);
+            }
+            if (p.pos.y>height()){
+                p.pos.x=p.startx;
+                p.pos.y=30;
             }
         })
         player.collides("coin", function(coin){
             destroy(coin)
         })
+        player2.collides("coin", function(coin){
+            destroy(coin)
+        })
         loop(3, () => {
             add([
                 sprite("coin1"),
-                pos(Math.round(Math.random()*(width()-200))+100, 50),
+                pos(Math.round(Math.random()*(width()-200))+100, 10),
                 "coin",
                 scale(0.25),
                 origin("center"),
