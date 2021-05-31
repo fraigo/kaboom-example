@@ -28,10 +28,10 @@
     <script>
     kaboom({
         global: true,
-        width: 1024,
-        height: 1024,
+        width: 512,
+        height: 512,
         fullscreen: true,
-        scale: 1,
+        scale: 2,
         clearColor:[0,0,0,1],
         plugins: [ peditPlugin, asepritePlugin, kbmspritePlugin ]
     });
@@ -59,12 +59,14 @@
             player.changeSprite("pac1");
         })
         keyPress("up", () => {
-            player.jump(JUMP_FORCE);
-            player.changeSprite("pac2");
+            if (player.grounded()){
+                player.jump(JUMP_FORCE);
+                player.changeSprite("pac2");
+            }
         });
         keyDown("left", () => {
             player.scale.x=-1
-            player.move(vec2(-60,0))
+            player.move(vec2(-80,0))
             if (Math.round(player.pos.x/8)%2==0){
                 player.changeSprite("pac2");
             } else {
@@ -73,7 +75,7 @@
         })
         keyDown("right", () => {
             player.scale.x=1
-            player.move(vec2(60,0))
+            player.move(vec2(80,0))
             if (Math.round(player.pos.x/8)%2==0){
                 player.changeSprite("pac2");
             } else {
