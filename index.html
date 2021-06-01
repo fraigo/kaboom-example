@@ -44,12 +44,13 @@
     });
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas)
-    loadRoot("./images/");
-    loadSprite("pac1a", "pac1a.png");
-    loadSprite("pac1b", "pac1b.png");
-    loadSprite("pac2a", "pac2a.png");
-    loadSprite("pac2b", "pac2b.png");
-    loadSprite("coin1", "coin.png");
+    loadRoot("./");
+    loadSprite("pac1a", "images/pac1a.png");
+    loadSprite("pac1b", "images/pac1b.png");
+    loadSprite("pac2a", "images/pac2a.png");
+    loadSprite("pac2b", "images/pac2b.png");
+    loadSprite("coin1", "images/coin.png");
+    loadSound("score", "sounds/score.mp3");
 
     scene("main", () => {
         gravity(980);
@@ -162,11 +163,13 @@
             score1.value += coin.points;
 		    score1.text = (""+(10000+score1.value)).substring(1);
             destroy(coin)
+            play("score");
         })
         player2.collides("coin", function(coin){
             score2.value += coin.points;
 		    score2.text = (""+(10000+score2.value)).substring(1);
             destroy(coin)
+            play("score");
         })
         loop(1, () => {
             var pt = Math.round(Math.random() * 4)
