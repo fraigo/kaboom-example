@@ -71,15 +71,6 @@
             body(),
             {vel:100,main:"pac2a",alt:"pac2b",startx:width()-30}
         ]);
-        add([
-            sprite("coin1"),
-		    pos(350, 50),
-            "coin",
-            scale(0.25),
-            origin("center"),
-            body(),
-            {vel:5}
-        ]);
         var bottom=add([
             rect(width()-40, 12),
             pos(20, 380),
@@ -168,24 +159,25 @@
             }
         })
         player.collides("coin", function(coin){
-            score1.value += 1;
+            score1.value += coin.points;
 		    score1.text = (""+(10000+score1.value)).substring(1);
             destroy(coin)
         })
         player2.collides("coin", function(coin){
-            score2.value += 1;
+            score2.value += coin.points;
 		    score2.text = (""+(10000+score2.value)).substring(1);
             destroy(coin)
         })
-        loop(3, () => {
+        loop(1, () => {
+            var pt = Math.round(Math.random() * 4)
             add([
                 sprite("coin1"),
-                pos(Math.round(Math.random()*(width()-200))+100, 10),
+                pos(Math.round(Math.random()*(width()-50))+25, 10),
                 "coin",
-                scale(0.25),
+                scale(0.20 * pt),
                 origin("center"),
                 body(),
-                {vel:5}
+                {points:pt}
             ]);
         });
     });
