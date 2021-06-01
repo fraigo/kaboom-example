@@ -31,7 +31,7 @@
         width: 512,
         height: 512,
         fullscreen: true,
-        scale: 1,
+        scale: 2,
         clearColor:[0,0,0,1],
         plugins: [ peditPlugin, asepritePlugin, kbmspritePlugin ]
     });
@@ -41,6 +41,7 @@
     loadSprite("pac2a", "pac2a.png");
     loadSprite("pac2b", "pac2b.png");
     loadSprite("coin1", "coin.png");
+
     scene("main", () => {
         gravity(980);
         var player = add([
@@ -77,28 +78,45 @@
             solid(),
         ]);
         add([
-            rect(width()/3, 12),
+            rect(100, 12),
             pos(250, 280),
             origin("topleft"),
             solid(),
         ]);
         add([
-            rect(width()/4, 12),
+            rect(100, 12),
             pos(120, 160),
             origin("topleft"),
             solid(),
         ]);
         add([
-            rect(width()/5, 12),
-            pos(660, 200),
+            rect(100, 12),
+            pos(560, 170),
             origin("topleft"),
             solid(),
         ]);
         add([
-            rect(width()/6, 12),
-            pos(440, 40),
+            rect(100, 12),
+            pos(390, 200),
             origin("topleft"),
             solid(),
+        ]);
+        add([
+            rect(100, 12),
+            pos(220, 40),
+            origin("topleft"),
+            solid(),
+        ]);
+        var score1 = add([
+            text("0000", 24),
+            pos(2, 2),
+            {value:0}
+        ]);
+        var score2 = add([
+            text("0000", 24),
+            pos(width()-2, 2),
+            origin("topright"),
+            {value:0}
         ]);
         const JUMP_FORCE = 490;
         keyPress("up", () => {
@@ -141,9 +159,13 @@
             }
         })
         player.collides("coin", function(coin){
+            score1.value += 1;
+		    score1.text = (""+(10000+score1.value)).substring(1);
             destroy(coin)
         })
         player2.collides("coin", function(coin){
+            score2.value += 1;
+		    score2.text = (""+(10000+score2.value)).substring(1);
             destroy(coin)
         })
         loop(3, () => {
@@ -162,6 +184,7 @@
     scene("start", () => {
         add([
             text("Press space!", 24),
+            origin("center"),
             pos(width() / 2, height() / 2),
         ]);
         keyPress("space", () => {
