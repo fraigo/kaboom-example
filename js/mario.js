@@ -49,6 +49,10 @@ loadSprite("player1b", "images/player1b.png", {
 		},
 	},
 });
+loadSound("jump", "sounds/jump_small.wav");
+loadSound("coin", "sounds/smb_coin.wav");
+loadSound("powerup0", "sounds/smb_powerup_appears.wav");
+loadSound("powerup1", "sounds/smb_powerup.wav");
 
 scene("main", () => {
 
@@ -89,12 +93,13 @@ scene("main", () => {
 		"%": [
 			sprite("tiles",{frame:48}),
 			solid(),
-			"prize",
+			"grow",
 		],
 		"*": [
-			sprite("tiles",{frame:31}),
-			area(vec2(0, 6), vec2(11, 11)),
-			"dangerous",
+			sprite("tiles",{frame:48}),
+			solid(),
+			"coiner",
+			{coins: 5}
 		],
 		"#": [
 			sprite("tiles",{frame:4}),
@@ -171,9 +176,28 @@ scene("main", () => {
 
 	// grow an apple if player's head bumps into an obj with "prize" tag
 	player.on("headbump", (obj) => {
-		if (obj.frame==48) {
+		if (obj.is("grow") && obj.frame==48) {
+			play("powerup0")
 			obj.frame=49;
 			level.spawn("#", obj.gridPos.sub(0, 1));
+		}
+		if (obj.is("coiner") && obj.frame==48) {
+			play("coin")
+			obj.coins--;
+			if (obj.coins == 0){
+				obj.frame=49;
+				return
+			}
+			score.value++;
+			score.text = score.value;
+			var coin1 = level.spawn("$", obj.gridPos.sub(0, 1));
+			var posy = coin1.pos.y
+			coin1.action(() => {
+				coin1.move(0,-100)
+				if (posy - coin1.pos.y > 20){
+					destroy(coin1)
+				}
+			})
 		}
 	});
 
@@ -189,6 +213,7 @@ scene("main", () => {
 		destroy(a);
 		// as we defined in the big() component
 		// player.biggify(3);
+		play("powerup1")
 		player.changeSprite("player1b");
 	});
 
@@ -200,6 +225,7 @@ scene("main", () => {
 	// increase score if meets coin
 	player.collides("coin", (c) => {
 		destroy(c);
+		play("coin");
 		score.value++;
 		score.text = score.value;
 	});

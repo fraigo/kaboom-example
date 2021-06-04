@@ -12,6 +12,7 @@ loadSprite("pac1b", "images/pac1b.png");
 loadSprite("pac2a", "images/pac2a.png");
 loadSprite("pac2b", "images/pac2b.png");
 loadSprite("coin1", "images/coin.png");
+
 loadSound("score", "sounds/score.mp3");
 
 scene("main", () => {
