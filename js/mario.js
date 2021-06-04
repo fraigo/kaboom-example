@@ -9,14 +9,6 @@ kaboom({
 
 // load assets
 loadRoot("./");
-loadSprite("guy", "images/guy.png");
-loadSprite("spike", "images/spike.png");
-loadSprite("steel", "images/steel.png");
-loadSprite("prize", "images/big.png");
-loadSprite("jumpy", "images/jumpy.png");
-loadSprite("apple", "images/apple.png");
-loadSprite("coin", "images/coin1.png");
-loadSprite("grass", "images/grass.png");
 loadSprite("tiles", "images/mario.png", {
 	sliceX: 16,
 	sliceY: 8,
@@ -28,6 +20,32 @@ loadSprite("tiles", "images/mario.png", {
 		idle: {
 			from: 2,
 			to: 2,
+		},
+	},
+});
+loadSprite("player1a", "images/player1a.png", {
+	sliceX: 3,
+	anims: {
+		move: {
+			from: 0,
+			to: 2,
+		},
+		idle: {
+			from: 0,
+			to: 0,
+		},
+	},
+});
+loadSprite("player1b", "images/player1b.png", {
+	sliceX: 3,
+	anims: {
+		move: {
+			from: 0,
+			to: 2,
+		},
+		idle: {
+			from: 0,
+			to: 0,
 		},
 	},
 });
@@ -80,6 +98,7 @@ scene("main", () => {
 		],
 		"#": [
 			sprite("tiles",{frame:4}),
+			body(),
 			"apple",
 		],
 	});
@@ -125,8 +144,9 @@ scene("main", () => {
 
 	// define player object
 	const player = add([
-		sprite("guy"),
-		pos(0, 0),
+		sprite("player1a"),
+		origin("center"),
+		pos(10, 0),
 		scale(1),
 		// makes it fall to gravity and jumpable
 		body(),
@@ -151,19 +171,29 @@ scene("main", () => {
 
 	// grow an apple if player's head bumps into an obj with "prize" tag
 	player.on("headbump", (obj) => {
-		if (obj.is("prize")) {
+		if (obj.frame==48) {
+			obj.frame=49;
 			level.spawn("#", obj.gridPos.sub(0, 1));
 		}
 	});
+
+	action("apple", function(p){
+		p.move(80,0)
+		if (p.pos.y >= FALL_DEATH) {
+			destroy(p)
+		}
+	})
 
 	// player grows big collides with an "apple" obj
 	player.collides("apple", (a) => {
 		destroy(a);
 		// as we defined in the big() component
-		player.biggify(3);
+		// player.biggify(3);
+		player.changeSprite("player1b");
 	});
 
-	player.collides("jumpy", (a) => {
+	player.collides("jumpy", (obj) => {
+		player.frame=1;
 		player.jump(JUMP_FORCE * 1.5);
 	});
 
@@ -177,16 +207,27 @@ scene("main", () => {
 	// jump with space
 	keyPress("up", () => {
 		// these 2 functions are provided by body() component
+		player.frame=1;
 		if (player.grounded()) {
 			player.jump(JUMP_FORCE);
 		}
 	});
 
 	keyDown("left", () => {
+		if (player.grounded()) {
+			var t = Math.round(time()*20)
+			player.frame=(t)%3;
+		}
+		player.scale.x=-1
 		player.move(-MOVE_SPEED, 0);
 	});
 
 	keyDown("right", () => {
+		if (player.grounded()) {
+			var t = Math.round(time()*20)
+			player.frame=(t)%3;
+		}
+		player.scale.x=1
 		player.move(MOVE_SPEED, 0);
 	});
 
@@ -194,7 +235,7 @@ scene("main", () => {
 
 scene("lose", ({ score }) => {
 	add([
-		text(score, 32),
+		text('Score: '+score, 32),
 		origin("center"),
 		pos(width() / 2, height() / 2),
 	]);
