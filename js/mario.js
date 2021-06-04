@@ -17,11 +17,25 @@ loadSprite("jumpy", "images/jumpy.png");
 loadSprite("apple", "images/apple.png");
 loadSprite("coin", "images/coin1.png");
 loadSprite("grass", "images/grass.png");
+loadSprite("tiles", "images/mario.png", {
+	sliceX: 16,
+	sliceY: 8,
+	anims: {
+		move: {
+			from: 0,
+			to: 1,
+		},
+		idle: {
+			from: 2,
+			to: 2,
+		},
+	},
+});
 
 scene("main", () => {
 
 	// define some constants
-	const JUMP_FORCE = 320;
+	const JUMP_FORCE = 360;
 	const MOVE_SPEED = 120;
 	const FALL_DEATH = 640;
 
@@ -38,34 +52,34 @@ scene("main", () => {
 	const level = addLevel(levelMap.split('\n'), {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
-		width: 11,
-		height: 11,
+		width: 17,
+		height: 17,
 		// define each object as a list of components
 		"=": [
-			sprite("steel"),
+			sprite("tiles",{frame: 81}),
 			solid(),
 		],
 		"$": [
-			sprite("coin"),
+			sprite("tiles",{frame: 32}),
 			"coin",
 		],
 		"^": [
-			sprite("jumpy"),
+			sprite("tiles",{frame:106}),
 			solid(),
 			"jumpy",
 		],
 		"%": [
-			sprite("prize"),
+			sprite("tiles",{frame:48}),
 			solid(),
 			"prize",
 		],
 		"*": [
-			sprite("spike"),
+			sprite("tiles",{frame:31}),
 			area(vec2(0, 6), vec2(11, 11)),
 			"dangerous",
 		],
 		"#": [
-			sprite("apple"),
+			sprite("tiles",{frame:4}),
 			"apple",
 		],
 	});
