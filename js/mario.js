@@ -12,9 +12,11 @@ loadRoot("./");
 loadSprite("guy", "images/guy.png");
 loadSprite("spike", "images/spike.png");
 loadSprite("steel", "images/steel.png");
-loadSprite("prize", "images/jumpy.png");
+loadSprite("prize", "images/big.png");
+loadSprite("jumpy", "images/jumpy.png");
 loadSprite("apple", "images/apple.png");
 loadSprite("coin", "images/coin1.png");
+loadSprite("grass", "images/grass.png");
 
 scene("main", () => {
 
@@ -47,12 +49,17 @@ scene("main", () => {
 			sprite("coin"),
 			"coin",
 		],
+		"^": [
+			sprite("jumpy"),
+			solid(),
+			"jumpy",
+		],
 		"%": [
 			sprite("prize"),
 			solid(),
 			"prize",
 		],
-		"^": [
+		"*": [
 			sprite("spike"),
 			area(vec2(0, 6), vec2(11, 11)),
 			"dangerous",
@@ -140,6 +147,10 @@ scene("main", () => {
 		destroy(a);
 		// as we defined in the big() component
 		player.biggify(3);
+	});
+
+	player.collides("jumpy", (a) => {
+		player.jump(JUMP_FORCE * 1.5);
 	});
 
 	// increase score if meets coin
