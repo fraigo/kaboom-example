@@ -49,10 +49,30 @@ loadSprite("player1b", "images/player1b.png", {
 		},
 	},
 });
+loadSprite("goomba", "images/goomba.png", {
+	sliceX: 3,
+	anims: {
+		move: {
+			from: 0,
+			to: 1,
+		},
+		idle: {
+			from: 0,
+			to: 0
+		},
+		die: {
+			from: 2,
+			to: 2
+		},
+	},
+});
 loadSound("jump", "sounds/jump_small.wav");
 loadSound("coin", "sounds/smb_coin.wav");
 loadSound("powerup0", "sounds/smb_powerup_appears.wav");
 loadSound("powerup1", "sounds/smb_powerup.wav");
+loadSound("stomp", "sounds/stomp.wav");
+loadSound("bump", "sounds/bump.wav");
+loadSound("brick", "sounds/brick.wav");
 
 scene("main", () => {
 
@@ -81,14 +101,25 @@ scene("main", () => {
 			sprite("tiles",{frame: 81}),
 			solid(),
 		],
+		"#": [
+			sprite("tiles",{frame: 82}),
+			solid(),
+			"brick"
+		],
 		"$": [
 			sprite("tiles",{frame: 32}),
 			"coin",
 		],
 		"^": [
-			sprite("tiles",{frame:106}),
+			sprite("tiles",{frame:124}),
 			solid(),
 			"jumpy",
+		],
+		"&": [
+			sprite("tiles",{frame:107}),
+			solid(),
+			"jumpy2",
+			area(vec2(0, 10), vec2(16)),
 		],
 		"%": [
 			sprite("tiles",{frame:48}),
@@ -101,10 +132,16 @@ scene("main", () => {
 			"coiner",
 			{coins: 5}
 		],
-		"#": [
+		"+": [
+			sprite("goomba"),
+			body(),
+			"goomba",
+			{moving: false}
+		],
+		"@": [
 			sprite("tiles",{frame:4}),
 			body(),
-			"apple",
+			"mushroom",
 		],
 	});
 
@@ -118,45 +155,15 @@ scene("main", () => {
 		},
 	]);
 
-	// define a custom component that handles player grow big logic
-	function big() {
-		let timer = 0;
-		let isBig = false;
-		return {
-			update() {
-				if (isBig) {
-					timer -= dt();
-					if (timer <= 0) {
-						this.smallify();
-					}
-				}
-			},
-			isBig() {
-				return isBig;
-			},
-			smallify() {
-				this.scale = vec2(1);
-				timer = 0;
-				isBig = false;
-			},
-			biggify(time) {
-				this.scale = vec2(2);
-				timer = time;
-				isBig = true;
-			},
-		};
-	}
-
 	// define player object
-	const player = add([
+	window.player = add([
 		sprite("player1a"),
 		origin("center"),
 		pos(10, 0),
 		scale(1),
-		// makes it fall to gravity and jumpable
 		body(),
-		// as we defined above
-		big(),
+		area(vec2(-6, -8), vec2(6, 8)),
+		{size:1}
 	]);
 
 	// action() runs every frame
@@ -174,12 +181,19 @@ scene("main", () => {
 		go("lose", { score: score.value, });
 	});
 
-	// grow an apple if player's head bumps into an obj with "prize" tag
+	// grow an mushroom if player's head bumps into an obj with "prize" tag
 	player.on("headbump", (obj) => {
 		if (obj.is("grow") && obj.frame==48) {
 			play("powerup0")
 			obj.frame=49;
-			level.spawn("#", obj.gridPos.sub(0, 1));
+			level.spawn("@", obj.gridPos.sub(0, 1));
+		}
+		if (obj.is("coiner") && obj.frame==49) {
+			play("bump")
+		}
+		if (obj.is("brick")) {
+			play("brick")
+			destroy(obj)
 		}
 		if (obj.is("coiner") && obj.frame==48) {
 			play("coin")
@@ -201,25 +215,74 @@ scene("main", () => {
 		}
 	});
 
-	action("apple", function(p){
+	action("mushroom", function(p){
 		p.move(80,0)
 		if (p.pos.y >= FALL_DEATH) {
 			destroy(p)
 		}
 	})
+	action("goomba", function(p){
+		var diffx=Math.abs(player.pos.x-p.pos.x);
+		if (diffx<200 || p.moving){
+			p.move(-30,0)
+			p.moving = true
+		}
+		if (p.frame<2){
+			var t = Math.round(time()*10)
+			p.frame=(t)%2;	
+		} else {
+			p.timer--;
+			if (p.timer==0){
+				destroy(p)
+			}
+		}
+		if (p.pos.y >= FALL_DEATH) {
+			destroy(p)
+		}
+	})
 
-	// player grows big collides with an "apple" obj
-	player.collides("apple", (a) => {
+	// player grows big collides with an "mushroom" obj
+	player.collides("mushroom", (a) => {
 		destroy(a);
 		// as we defined in the big() component
 		// player.biggify(3);
 		play("powerup1")
+		player.size=2
 		player.changeSprite("player1b");
+	});
+
+	player.collides("goomba", (g) => {
+		var diffy = player.pos.y-g.pos.y
+		console.log(diffy)
+		if(g.frame<2 && diffy<0){
+			play("stomp")
+			g.frame=2
+			g.timer=10
+		} else {
+			destroy(g);
+			if (player.size==2){
+				player.size=1
+				player.changeSprite("player1a");
+			} else {
+				go("lose", { score: score.value, });
+			}
+		}
 	});
 
 	player.collides("jumpy", (obj) => {
 		player.frame=1;
+		obj.frame=123;
+		var jmp2 = level.spawn("&", obj.gridPos.sub(0, 1));
+		jmp2.ref = obj
+		jmp2.time = time()
 		player.jump(JUMP_FORCE * 1.5);
+	});
+	player.collides("jumpy2", (obj) => {
+		var diff = time()-obj.time
+		if (diff>0){
+			obj.ref.frame=124;
+			destroy(obj)	
+		}
 	});
 
 	// increase score if meets coin
