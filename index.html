@@ -52,9 +52,9 @@
             resizeCanvas();
             window.addEventListener("resize", resizeCanvas)
         };
-        script.src = 'js/pac.js';
-        if (document.location.search=='?mario'){
-            script.src = 'js/mario.js';
+        script.src = 'js/mario.js';
+        if (document.location.search=='?pac'){
+            script.src = 'js/pac.js';
         }
         document.body.appendChild(script); 
     </script>
