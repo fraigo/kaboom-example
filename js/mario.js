@@ -4,6 +4,7 @@ kaboom({
     height: 360,
     scale: 2,
 	clearColor: [0, 0, 0, 1],
+	fps: 6,
     plugins: [ peditPlugin, asepritePlugin, kbmspritePlugin ]
 });
 
@@ -73,6 +74,8 @@ loadSound("powerup1", "sounds/smb_powerup.wav");
 loadSound("stomp", "sounds/stomp.wav");
 loadSound("bump", "sounds/bump.wav");
 loadSound("brick", "sounds/brick.wav");
+loadSound("pipe", "sounds/smb_pipe.wav");
+loadSound("die", "sounds/smb_mariodie.wav");
 
 scene("main", () => {
 
@@ -188,9 +191,6 @@ scene("main", () => {
 			obj.frame=49;
 			level.spawn("@", obj.gridPos.sub(0, 1));
 		}
-		if (obj.is("coiner") && obj.frame==49) {
-			play("bump")
-		}
 		if (obj.is("brick")) {
 			play("brick")
 			destroy(obj)
@@ -213,6 +213,9 @@ scene("main", () => {
 				}
 			})
 		}
+		if (obj.frame==49) {
+			play("bump")
+		}
 	});
 
 	action("mushroom", function(p){
@@ -224,7 +227,7 @@ scene("main", () => {
 	action("goomba", function(p){
 		var diffx=Math.abs(player.pos.x-p.pos.x);
 		if (diffx<200 || p.moving){
-			p.move(-30,0)
+			p.pos.x-=2
 			p.moving = true
 		}
 		if (p.frame<2){
@@ -253,7 +256,6 @@ scene("main", () => {
 
 	player.collides("goomba", (g) => {
 		var diffy = player.pos.y-g.pos.y
-		console.log(diffy)
 		if(g.frame<2 && diffy<0){
 			play("stomp")
 			g.frame=2
@@ -261,6 +263,7 @@ scene("main", () => {
 		} else {
 			destroy(g);
 			if (player.size==2){
+				play("pipe")
 				player.size=1
 				player.changeSprite("player1a");
 			} else {
@@ -323,6 +326,7 @@ scene("main", () => {
 });
 
 scene("lose", ({ score }) => {
+	play("die")
 	add([
 		text('Score: '+score, 32),
 		origin("center"),
