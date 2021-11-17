@@ -457,7 +457,7 @@ scene("lose", ({ score }) => {
 	});
 });
 
-fetch("levels/mario_level1.txt?"+Math.random())
+fetch("levels/"+currentLevel+".txt?"+Math.random())
 	.then((response) => response.text())
 	.then((text) => {
 		levelMap = text

@@ -46,6 +46,7 @@
             window.addEventListener("resize", resizeCanvas)
         };
         script.src = 'js/mario.js?'+Math.random();
+        var currentLevel = "mario_level_test"
         if (document.location.search=='?pac'){
             script.src = 'js/pac.js?'+Math.random();
         }
