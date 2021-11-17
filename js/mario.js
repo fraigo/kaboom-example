@@ -141,21 +141,21 @@ scene("main", () => {
 		]},
 		".": function() { return [
 			sprite("tiles",{frame: 21}),
-			area(),
+			area({width: 4, height: 6, offset: {x:0, y:0}}),
 			solid(),
 			origin("bot"),
 			"poletop"
 		]},
 		"<": function() { return [
 			sprite("tiles",{frame: 40}),
-			area(),
+			area({width: 14, height: 14, offset: {x:0, y:-2}}),
 			solid(),
 			origin("botleft"),
 			"flag"
 		]},
 		"|": function() { return [
 			sprite("tiles",{frame: 37}),
-			area(),
+			area({width: 4, height: 16, offset: {x:0, y:0}}),
 			solid(),
 			origin("bot"),
 			"polebottom",
