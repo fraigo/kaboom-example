@@ -1,10 +1,10 @@
-kaboom({
+window.kb = kaboom({
 	global: true,
     width: 360,
     height: 360,
     scale: 2,
-	clearColor: [0, 0, 0, 1],
-	fps: 6,
+	background: [0, 0, 0, 1],
+	fps: 12,
     plugins: [ peditPlugin, asepritePlugin, kbmspritePlugin ]
 });
 
@@ -90,68 +90,86 @@ scene("main", () => {
 		"ui",
 	], "game");
 
-	// camera will ignore "ui" layer
-	camIgnore([ "ui", ]);
-
 	// add level to scene
-	const level = addLevel(levelMap.split('\n'), {
+	var map = levelMap.split('\n')
+	console.log('map', map)
+	const level = addLevel(map, {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
 		width: 17,
 		height: 17,
 		// define each object as a list of components
-		"=": [
+		"=": function() { return [
 			sprite("tiles",{frame: 81}),
+			area(),
 			solid(),
-		],
-		"#": [
+			origin("center"),
+			"tile"
+		]},
+		"#": function() { return [
 			sprite("tiles",{frame: 82}),
+			area(),
 			solid(),
+			origin("center"),
 			"brick"
-		],
-		"$": [
+		]},
+		"$": function() { return [
 			sprite("tiles",{frame: 32}),
+			area(),
+			origin("center"),
 			"coin",
-		],
-		"^": [
+		]},
+		"^": function() { return [
 			sprite("tiles",{frame:124}),
+			origin("center"),
+			area(),
 			solid(),
 			"jumpy",
-		],
-		"&": [
+		]},
+		"&": function() { return [
 			sprite("tiles",{frame:107}),
+			origin("center"),
+			area(),
 			solid(),
 			"jumpy2",
 			area(vec2(0, 10), vec2(16)),
-		],
-		"%": [
+		]},
+		"%": function() { return [
 			sprite("tiles",{frame:48}),
+			origin("center"),
+			area(),
 			solid(),
 			"grow",
-		],
-		"*": [
+		]},
+		"*": function() { return [
 			sprite("tiles",{frame:48}),
+			area(),
 			solid(),
+			origin("center"),
 			"coiner",
 			{coins: 5}
-		],
-		"+": [
+		]},
+		"+": function() { return [
 			sprite("goomba"),
+			area(),
 			body(),
 			"goomba",
 			{moving: false}
-		],
-		"@": [
+		]},
+		"@": function() { return [
 			sprite("tiles",{frame:4}),
+			area(),
 			body(),
 			"mushroom",
-		],
+		]},
 	});
 
 	// add score counter obj
 	const score = add([
 		text("0"),
-		pos(6, 6),
+		pos(25,6),
+		fixed(),
+		origin("top"),
 		layer("ui"),
 		{
 			value: 0,
@@ -159,15 +177,41 @@ scene("main", () => {
 	]);
 
 	// define player object
-	window.player = add([
+	var player1a = add([
 		sprite("player1a"),
 		origin("center"),
-		pos(10, 0),
+		layer("game"),
+		pos(10, 5),
 		scale(1),
+		area({width: 10, height: 16, offset: {x:-1, y:0}}),
 		body(),
-		area(vec2(-6, -8), vec2(6, 8)),
-		{size:1}
+		"player",
+		{size:1, jumpPower: JUMP_FORCE}
 	]);
+	var player1b = add([
+		sprite("player1b"),
+		origin("center"),
+		layer("game"),
+		pos(10, 5),
+		scale(1),
+		area({width: 12, height: 30, offset: {x:-1, y:0}}),
+		body(),
+		"player",
+		{size:2, jumpPower: JUMP_FORCE * 1.5}
+	]);
+	player1b.hidden = true;
+	player1b.solid = false;
+	window.player = player1a;
+
+	function showPlayer(p){
+		player.hidden = true
+		player.solid = false
+		p.pos.x = player.pos.x
+		p.pos.y = player.pos.y
+		p.hidden = false
+		p.solid = true
+		player = p
+	}
 
 	// action() runs every frame
 	player.action(() => {
@@ -185,15 +229,24 @@ scene("main", () => {
 	});
 
 	// grow an mushroom if player's head bumps into an obj with "prize" tag
-	player.on("headbump", (obj) => {
+	var onHeadbutt = (obj) => {
 		if (obj.is("grow") && obj.frame==48) {
 			play("powerup0")
 			obj.frame=49;
 			level.spawn("@", obj.gridPos.sub(0, 1));
 		}
 		if (obj.is("brick")) {
-			play("brick")
-			destroy(obj)
+			if (player.size==1){
+				obj.pos.y-=6;
+				play("stomp")
+				setTimeout(function(){
+					obj.pos.y+=6;
+				},120)	
+			} else {
+				obj.frame = 84
+				play("brick")
+				destroy(obj)
+			}
 		}
 		if (obj.is("coiner") && obj.frame==48) {
 			play("coin")
@@ -216,10 +269,12 @@ scene("main", () => {
 		if (obj.frame==49) {
 			play("bump")
 		}
-	});
+	}
+	player1a.on("headbutt", onHeadbutt);
+	player1b.on("headbutt", onHeadbutt);
 
 	action("mushroom", function(p){
-		p.move(80,0)
+		p.move(50,0)
 		if (p.pos.y >= FALL_DEATH) {
 			destroy(p)
 		}
@@ -227,7 +282,7 @@ scene("main", () => {
 	action("goomba", function(p){
 		var diffx=Math.abs(player.pos.x-p.pos.x);
 		if (diffx<200 || p.moving){
-			p.pos.x-=2
+			p.pos.x-=1
 			p.moving = true
 		}
 		if (p.frame<2){
@@ -245,51 +300,49 @@ scene("main", () => {
 	})
 
 	// player grows big collides with an "mushroom" obj
-	player.collides("mushroom", (a) => {
-		destroy(a);
+	onCollide("player", "mushroom", (p, m) => {
+		destroy(m);
 		// as we defined in the big() component
 		// player.biggify(3);
 		play("powerup1")
-		player.size=2
-		player.changeSprite("player1b");
+		showPlayer(player1b)
 	});
 
-	player.collides("goomba", (g) => {
-		var diffy = player.pos.y-g.pos.y
+	onCollide("player", "goomba", (p, g) => {
+		var diffy = p.pos.y-g.pos.y
 		if(g.frame<2 && diffy<0){
 			play("stomp")
 			g.frame=2
 			g.timer=10
 		} else {
 			destroy(g);
-			if (player.size==2){
+			if (p.size==2){
 				play("pipe")
-				player.size=1
-				player.changeSprite("player1a");
+				showPlayer(player1a)
 			} else {
 				go("lose", { score: score.value, });
 			}
 		}
 	});
 
-	player.collides("jumpy", (obj) => {
-		player.frame=1;
-		obj.frame=123;
-		var jmp2 = level.spawn("&", obj.gridPos.sub(0, 1));
-		jmp2.ref = obj
+	onCollide("player", "jumpy", (p, j) => {
+		p.frame=1;
+		j.frame=123;
+		var jmp2 = level.spawn("&", j.gridPos.sub(0, 1));
+		jmp2.ref = j
 		jmp2.time = time()
-		player.jump(JUMP_FORCE * 1.5);
+		p.jump(p.jumpPower * 1.5);
 	});
-	player.collides("jumpy2", (obj) => {
-		var diff = time()-obj.time
+	onCollide("player", "jumpy2", (p, j) => {
+		var diff = time()-j.time
 		if (diff>0){
-			obj.ref.frame=124;
-			destroy(obj)	
+			j.ref.frame=124;
+			destroy(j)	
 		}
 	});
 
 	// increase score if meets coin
-	player.collides("coin", (c) => {
+	onCollide("player", "coin", (p, c) => {
 		destroy(c);
 		play("coin");
 		score.value++;
@@ -301,7 +354,7 @@ scene("main", () => {
 		// these 2 functions are provided by body() component
 		player.frame=1;
 		if (player.grounded()) {
-			player.jump(JUMP_FORCE);
+			player.jump(player.jumpPower);
 		}
 	});
 
@@ -310,7 +363,7 @@ scene("main", () => {
 			var t = Math.round(time()*20)
 			player.frame=(t)%3;
 		}
-		player.scale.x=-1
+		player.flipX(true)
 		player.move(-MOVE_SPEED, 0);
 	});
 
@@ -319,7 +372,7 @@ scene("main", () => {
 			var t = Math.round(time()*20)
 			player.frame=(t)%3;
 		}
-		player.scale.x=1
+		player.flipX(false)
 		player.move(MOVE_SPEED, 0);
 	});
 
@@ -337,4 +390,4 @@ scene("lose", ({ score }) => {
 	});
 });
 
-start("main");
+go("main")
