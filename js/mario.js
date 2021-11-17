@@ -80,7 +80,7 @@ loadSound("die", "sounds/smb_mariodie.wav");
 scene("main", () => {
 
 	// define some constants
-	const JUMP_FORCE = 360;
+	const JUMP_FORCE = 400;
 	const MOVE_SPEED = 120;
 	const FALL_DEATH = 640;
 
@@ -100,14 +100,14 @@ scene("main", () => {
 		height: 17,
 		// define each object as a list of components
 		"=": function() { return [
-			sprite("tiles",{frame: 81}),
+			sprite("tiles",{frame: 82}),
 			area(),
 			solid(),
 			origin("bot"),
 			"tile"
 		]},
 		"#": function() { return [
-			sprite("tiles",{frame: 82}),
+			sprite("tiles",{frame: 81}),
 			area(),
 			solid(),
 			origin("bot"),
@@ -203,7 +203,15 @@ scene("main", () => {
 			solid(),
 			origin("bot"),
 			"coiner",
-			{coins: 5}
+			{coins: 1, emptyFrame:52}
+		]},
+		"5": function() { return [
+			sprite("tiles",{frame:48}),
+			area(),
+			solid(),
+			origin("bot"),
+			"coiner",
+			{coins: 5, emptyFrame:49}
 		]},
 		"+": function() { return [
 			sprite("goomba"),
@@ -214,7 +222,7 @@ scene("main", () => {
 			{moving: false}
 		]},
 		"@": function() { return [
-			sprite("tiles",{frame:4}),
+			sprite("tiles",{frame:5}),
 			area(),
 			body(),
 			origin("bot"),
@@ -255,7 +263,7 @@ scene("main", () => {
 		area({width: 12, height: 30, offset: {x:-1, y:0}}),
 		body(),
 		"player",
-		{size:2, jumpPower: JUMP_FORCE * 1.5}
+		{size:2, jumpPower: JUMP_FORCE * 1.3}
 	]);
 	player1b.hidden = true;
 	player1b.solid = false;
@@ -290,7 +298,7 @@ scene("main", () => {
 	var onHeadbutt = (obj) => {
 		if (obj.is("grow") && obj.frame==48) {
 			play("powerup0")
-			obj.frame=49;
+			obj.frame=52;
 			level.spawn("@", obj.gridPos.sub(0, 1));
 		}
 		if (obj.is("brick")) {
@@ -311,7 +319,7 @@ scene("main", () => {
 			play("coin")
 			obj.coins--;
 			if (obj.coins == 0){
-				obj.frame=49;
+				obj.frame=obj.emptyFrame;
 				return
 			}
 			score.value++;
