@@ -113,6 +113,13 @@ scene("main", () => {
 			origin("bot"),
 			"brick"
 		]},
+		"X": function() { return [
+			sprite("tiles",{frame: 112}),
+			area(),
+			solid(),
+			origin("bot"),
+			"floor"
+		]},
 		"[": function() { return [
 			sprite("tiles",{frame: 54}),
 			area(),
