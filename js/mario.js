@@ -80,7 +80,7 @@ loadSound("die", "sounds/smb_mariodie.wav");
 scene("main", () => {
 
 	// define some constants
-	const JUMP_FORCE = 428;
+	const JUMP_FORCE = 460;
 	const MOVE_SPEED = 120;
 	const FALL_DEATH = 640;
 
@@ -237,6 +237,7 @@ scene("main", () => {
 			"flip",
 			"block",
 			"mushroom",
+			{moveDirection:1}
 		]},
 	});
 
@@ -351,7 +352,8 @@ scene("main", () => {
 	player1b.on("headbutt", onHeadbutt);
 
 	action("mushroom", function(p){
-		p.move(50,0)
+		p.move(p.moveDirection*50,0)
+		p.flipping = false
 		if (p.pos.y >= FALL_DEATH) {
 			destroy(p)
 		}
@@ -377,7 +379,7 @@ scene("main", () => {
 		}
 	})
 
-	onCollide("goomba", "block", (go, bl) => {
+	onCollide("flip", "block", (go, bl) => {
 		if (bl.pos.y<=go.pos.y && !go.flipping){
 			console.log('flip', go.moveDirection)
 			go.moveDirection *= -1
