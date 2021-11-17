@@ -80,7 +80,7 @@ loadSound("die", "sounds/smb_mariodie.wav");
 scene("main", () => {
 
 	// define some constants
-	const JUMP_FORCE = 400;
+	const JUMP_FORCE = 428;
 	const MOVE_SPEED = 120;
 	const FALL_DEATH = 640;
 
@@ -377,12 +377,13 @@ scene("main", () => {
 		}
 	})
 
-	onCollide("goomba", "block", (fl, bl) => {
-		if (bl.pos.y<=fl.pos.y && !fl.flipping){
-			console.log('flip', fl.moveDirection)
-			fl.moveDirection *= -1
-			fl.moveBy(fl.moveDirection*2,0)
-			fl.flipping = true
+	onCollide("goomba", "block", (go, bl) => {
+		if (bl.pos.y<=go.pos.y && !go.flipping){
+			console.log('flip', go.moveDirection)
+			go.moveDirection *= -1
+			go.moveBy(go.moveDirection*2,0)
+			go.flipX(go.moveDirection>0)
+			go.flipping = true
 		}
 	})
 	// player grows big collides with an "mushroom" obj
