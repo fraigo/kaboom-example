@@ -104,35 +104,40 @@ scene("main", () => {
 			area(),
 			solid(),
 			origin("bot"),
-			"tile"
+			"tile",
+			"block"
 		]},
 		"#": function() { return [
 			sprite("tiles",{frame: 81}),
 			area(),
 			solid(),
 			origin("bot"),
-			"brick"
+			"brick",
+			"block"
 		]},
 		"X": function() { return [
 			sprite("tiles",{frame: 112}),
 			area(),
 			solid(),
 			origin("bot"),
-			"floor"
+			"floor",
+			"block"
 		]},
 		"[": function() { return [
 			sprite("tiles",{frame: 54}),
 			area(),
 			solid(),
 			origin("bot"),
-			"pipebottom"
+			"pipebottom",
+			"block",
 		]},
 		"]": function() { return [
 			sprite("tiles",{frame: 55}),
 			area(),
 			solid(),
 			origin("bot"),
-			"pipebottom"
+			"pipebottom",
+			"block",
 		]},
 		".": function() { return [
 			sprite("tiles",{frame: 21}),
@@ -153,7 +158,8 @@ scene("main", () => {
 			area(),
 			solid(),
 			origin("bot"),
-			"polebottom"
+			"polebottom",
+			"block",
 		]},
 		"\\": function() { return [
 			sprite("tiles",{frame: 38}),
@@ -215,17 +221,21 @@ scene("main", () => {
 		]},
 		"+": function() { return [
 			sprite("goomba"),
-			area(),
+			area({width: 12, height: 16, offset: {x:-1, y:0}}),
 			body(),
 			origin("bot"),
 			"goomba",
-			{moving: false}
+			"flip",
+			"block",
+			{moving: false, moveDirection:-1}
 		]},
 		"@": function() { return [
 			sprite("tiles",{frame:5}),
 			area(),
 			body(),
 			origin("bot"),
+			"flip",
+			"block",
 			"mushroom",
 		]},
 	});
@@ -346,26 +356,35 @@ scene("main", () => {
 			destroy(p)
 		}
 	})
-	action("goomba", function(p){
-		var diffx=Math.abs(player.pos.x-p.pos.x);
-		if (diffx<200 || p.moving){
-			p.pos.x-=1
-			p.moving = true
+	action("goomba", function(g){
+		var diffx=Math.abs(player.pos.x-g.pos.x);
+		if (diffx<200 || g.moving){
+			g.moveBy(g.moveDirection,0)
+			g.moving = true
+			g.flipping = false
 		}
-		if (p.frame<2){
+		if (g.frame<2){
 			var t = Math.round(time()*10)
-			p.frame=(t)%2;	
+			g.frame=(t)%2;	
 		} else {
-			p.timer--;
-			if (p.timer==0){
-				destroy(p)
+			g.timer--;
+			if (g.timer==0){
+				destroy(g)
 			}
 		}
-		if (p.pos.y >= FALL_DEATH) {
-			destroy(p)
+		if (g.pos.y >= FALL_DEATH) {
+			destroy(g)
 		}
 	})
 
+	onCollide("goomba", "block", (fl, bl) => {
+		if (bl.pos.y<=fl.pos.y && !fl.flipping){
+			console.log('flip', fl.moveDirection)
+			fl.moveDirection *= -1
+			fl.moveBy(fl.moveDirection*2,0)
+			fl.flipping = true
+		}
+	})
 	// player grows big collides with an "mushroom" obj
 	onCollide("player", "mushroom", (p, m) => {
 		destroy(m);
@@ -377,11 +396,15 @@ scene("main", () => {
 
 	onCollide("player", "goomba", (p, g) => {
 		var diffy = p.pos.y-g.pos.y
+		console.log('pg',diffy,g.timer)
 		if(g.frame<2 && diffy<0){
 			play("stomp")
+			setTimeout(function(){
+				p.jump(300)
+			},20)
 			g.frame=2
 			g.timer=10
-		} else {
+		} else if (!g.timer){
 			destroy(g);
 			if (p.size==2){
 				play("pipe")
