@@ -103,49 +103,98 @@ scene("main", () => {
 			sprite("tiles",{frame: 81}),
 			area(),
 			solid(),
-			origin("center"),
+			origin("bot"),
 			"tile"
 		]},
 		"#": function() { return [
 			sprite("tiles",{frame: 82}),
 			area(),
 			solid(),
-			origin("center"),
+			origin("bot"),
 			"brick"
+		]},
+		"[": function() { return [
+			sprite("tiles",{frame: 54}),
+			area(),
+			solid(),
+			origin("bot"),
+			"pipebottom"
+		]},
+		"]": function() { return [
+			sprite("tiles",{frame: 55}),
+			area(),
+			solid(),
+			origin("bot"),
+			"pipebottom"
+		]},
+		".": function() { return [
+			sprite("tiles",{frame: 21}),
+			area(),
+			solid(),
+			origin("bot"),
+			"poletop"
+		]},
+		"<": function() { return [
+			sprite("tiles",{frame: 40}),
+			area(),
+			solid(),
+			origin("botleft"),
+			"flag"
+		]},
+		"|": function() { return [
+			sprite("tiles",{frame: 37}),
+			area(),
+			solid(),
+			origin("bot"),
+			"polebottom"
+		]},
+		"\\": function() { return [
+			sprite("tiles",{frame: 38}),
+			area(),
+			solid(),
+			origin("bot"),
+			"pipetop"
+		]},
+		"/": function() { return [
+			sprite("tiles",{frame: 39}),
+			area(),
+			solid(),
+			origin("bot"),
+			"pipetop"
 		]},
 		"$": function() { return [
 			sprite("tiles",{frame: 32}),
 			area(),
-			origin("center"),
+			origin("bot"),
 			"coin",
 		]},
 		"^": function() { return [
 			sprite("tiles",{frame:124}),
-			origin("center"),
 			area(),
 			solid(),
+			origin("bot"),
 			"jumpy",
 		]},
 		"&": function() { return [
 			sprite("tiles",{frame:107}),
-			origin("center"),
 			area(),
 			solid(),
+			origin("bot"),
 			"jumpy2",
 			area(vec2(0, 10), vec2(16)),
 		]},
 		"%": function() { return [
 			sprite("tiles",{frame:48}),
-			origin("center"),
 			area(),
 			solid(),
+			origin("bot"),
 			"grow",
 		]},
 		"*": function() { return [
 			sprite("tiles",{frame:48}),
 			area(),
 			solid(),
-			origin("center"),
+			origin("bot"),
 			"coiner",
 			{coins: 5}
 		]},
@@ -153,6 +202,7 @@ scene("main", () => {
 			sprite("goomba"),
 			area(),
 			body(),
+			origin("bot"),
 			"goomba",
 			{moving: false}
 		]},
@@ -160,16 +210,17 @@ scene("main", () => {
 			sprite("tiles",{frame:4}),
 			area(),
 			body(),
+			origin("bot"),
 			"mushroom",
 		]},
 	});
 
 	// add score counter obj
 	const score = add([
-		text("0"),
-		pos(25,6),
+		text("0",{size:20,font:"sinko"}),
+		pos(20,30),
 		fixed(),
-		origin("top"),
+		origin("botleft"),
 		layer("ui"),
 		{
 			value: 0,
@@ -179,7 +230,7 @@ scene("main", () => {
 	// define player object
 	var player1a = add([
 		sprite("player1a"),
-		origin("center"),
+		origin("bot"),
 		layer("game"),
 		pos(10, 5),
 		scale(1),
@@ -190,7 +241,7 @@ scene("main", () => {
 	]);
 	var player1b = add([
 		sprite("player1b"),
-		origin("center"),
+		origin("bot"),
 		layer("game"),
 		pos(10, 5),
 		scale(1),
@@ -243,9 +294,10 @@ scene("main", () => {
 					obj.pos.y+=6;
 				},120)	
 			} else {
-				obj.frame = 84
+				obj.frame = 83
+				obj.pos.y-=10;
 				play("brick")
-				destroy(obj)
+				setTimeout(function(){destroy(obj)},200)
 			}
 		}
 		if (obj.is("coiner") && obj.frame==48) {
@@ -326,14 +378,22 @@ scene("main", () => {
 	});
 
 	onCollide("player", "jumpy", (p, j) => {
+		console.log('jumpy')
+		setTimeout(function(){
+			p.jump(JUMP_FORCE*2)
+		},10)
 		p.frame=1;
 		j.frame=123;
 		var jmp2 = level.spawn("&", j.gridPos.sub(0, 1));
 		jmp2.ref = j
 		jmp2.time = time()
-		p.jump(p.jumpPower * 1.5);
+		setTimeout(function(){
+			j.frame=124;
+			destroy(jmp2)
+		},500)
 	});
 	onCollide("player", "jumpy2", (p, j) => {
+		console.log('jumpy2')
 		var diff = time()-j.time
 		if (diff>0){
 			j.ref.frame=124;
@@ -381,8 +441,8 @@ scene("main", () => {
 scene("lose", ({ score }) => {
 	play("die")
 	add([
-		text('Score: '+score, 32),
-		origin("center"),
+		text('Score: '+score, {size:24,font:"sinko"}),
+		origin("bot"),
 		pos(width() / 2, height() / 2),
 	]);
     keyDown("space", () => {
@@ -390,4 +450,10 @@ scene("lose", ({ score }) => {
 	});
 });
 
-go("main")
+fetch("levels/mario_level1.txt?"+Math.random())
+	.then((response) => response.text())
+	.then((text) => {
+		levelMap = text
+		go("main")
+		document.querySelector("canvas").focus()
+	})
