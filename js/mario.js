@@ -77,7 +77,7 @@ loadSound("brick", "sounds/brick.wav");
 loadSound("pipe", "sounds/smb_pipe.wav");
 loadSound("die", "sounds/smb_mariodie.wav");
 
-scene("main", () => {
+scene("main", ({extraLives, initialScore}) => {
 
 	// define some constants
 	const JUMP_FORCE = 460;
@@ -239,20 +239,58 @@ scene("main", () => {
 			"mushroom",
 			{moveDirection:1}
 		]},
+		"P": function() { return [
+			sprite("tiles",{frame:6}),
+			area(),
+			solid(),
+			origin("bot"),
+			"extralive",
+		]},
+		"p": function() { return [
+			sprite("tiles",{frame:4}),
+			area(),
+			body(),
+			origin("bot"),
+			"flip",
+			"block",
+			"live",
+			{moveDirection:1}
+		]},
 	});
 
 	// add score counter obj
 	const score = add([
-		text("0",{size:20,font:"sinko"}),
+		text(""+initialScore,{size:16,font:"sinko"}),
 		pos(20,30),
 		fixed(),
 		origin("botleft"),
 		layer("ui"),
 		{
-			value: 0,
+			value: initialScore,
 		},
 	]);
 
+	add([
+		sprite("player1a"),
+		pos(300,30),
+		scale(1.25),
+		fixed(),
+		origin("botleft"),
+		layer("ui"),
+		{
+			value: extraLives,
+		},
+	]);
+	const lives = add([
+		text("x"+extraLives,{size:16,font:"sinko"}),
+		pos(315,30),
+		fixed(),
+		origin("botleft"),
+		layer("ui"),
+		{
+			value: extraLives,
+		},
+	]);
 	// define player object
 	var player1a = add([
 		sprite("player1a"),
@@ -296,13 +334,13 @@ scene("main", () => {
 		camPos(player.pos);
 		// check fall death
 		if (player.pos.y >= FALL_DEATH) {
-			go("lose", { score: score.value, });
+			go("lose", { score: score.value, lives: lives.value});
 		}
 	});
 
 	// if player collides with any obj with "dangerous" tag, lose
 	player.collides("dangerous", () => {
-		go("lose", { score: score.value, });
+		go("lose", { score: score.value, lives: lives.value });
 	});
 
 	// grow an mushroom if player's head bumps into an obj with "prize" tag
@@ -311,6 +349,11 @@ scene("main", () => {
 			play("powerup0")
 			obj.frame=52;
 			level.spawn("@", obj.gridPos.sub(0, 1));
+		}
+		if (obj.is("extralive") && obj.frame==6) {
+			play("powerup0")
+			obj.frame=52;
+			level.spawn("p", obj.gridPos.sub(0, 1));
 		}
 		if (obj.is("brick")) {
 			if (player.size==1){
@@ -329,10 +372,6 @@ scene("main", () => {
 		if (obj.is("coiner") && obj.frame==48) {
 			play("coin")
 			obj.coins--;
-			if (obj.coins == 0){
-				obj.frame=obj.emptyFrame;
-				return
-			}
 			score.value++;
 			score.text = score.value;
 			var coin1 = level.spawn("$", obj.gridPos.sub(0, 1));
@@ -343,6 +382,10 @@ scene("main", () => {
 					destroy(coin1)
 				}
 			})
+			if (obj.coins == 0){
+				obj.frame=obj.emptyFrame;
+				return
+			}
 		}
 		if (obj.frame==49) {
 			play("bump")
@@ -355,6 +398,20 @@ scene("main", () => {
 		p.move(p.moveDirection*50,0)
 		p.flipping = false
 		if (p.pos.y >= FALL_DEATH) {
+			destroy(p)
+		}
+	})
+	action("live", function(p){
+		p.move(p.moveDirection*50,0)
+		p.flipping = false
+		if (p.pos.y >= FALL_DEATH) {
+			destroy(p)
+		}
+	})
+	action("fly", function(p){
+		p.moveBy(0,-p.vel)
+		p.seq++
+		if (p.seq>60){
 			destroy(p)
 		}
 	})
@@ -396,6 +453,24 @@ scene("main", () => {
 		play("powerup1")
 		showPlayer(player1b)
 	});
+	onCollide("player", "live", (p, m) => {
+		if (m.hidden) return;
+		m.hidden = true
+		destroy(m);
+		play("powerup1")
+		lives.value++ 
+		lives.text = "x" + lives.value
+		setTimeout(function(){
+			var up = add([
+				text("1UP",{size:8,font:"sinko"}),
+				pos(p.pos.x,p.pos.y),
+				origin("botleft"),
+				"fly",
+				layer("ui"),
+				{seq:0, vel:1}
+			])	
+		})
+	});
 
 	onCollide("player", "goomba", (p, g) => {
 		var diffy = p.pos.y-g.pos.y
@@ -413,7 +488,7 @@ scene("main", () => {
 				play("pipe")
 				showPlayer(player1a)
 			} else {
-				go("lose", { score: score.value, });
+				go("lose", { score: score.value, lives: lives.value });
 			}
 		}
 	});
@@ -479,15 +554,40 @@ scene("main", () => {
 
 });
 
-scene("lose", ({ score }) => {
+scene("lose", ({ score, lives }) => {
 	play("die")
+	lives--
+	if (lives>=0){
+		add([
+			sprite("player1a"),
+			pos(width() / 2 - 20, height() / 4),
+			scale(1.25),
+			fixed(),
+			origin("botleft"),
+			layer("ui")
+		]);
+		add([
+			text('x'+lives, {size:16,font:"sinko"}),
+			origin("bot"),
+			pos(width() / 2 + 10, height() / 4),
+		]);
+	}
 	add([
 		text('Score: '+score, {size:24,font:"sinko"}),
 		origin("bot"),
 		pos(width() / 2, height() / 2),
 	]);
+	if (lives==-1){
+		add([
+			text('Game Over', {size:24,font:"sinko"}),
+			origin("bot"),
+			pos(width() / 2, height() * 3 / 4),
+		]);
+		lives=2
+		score=0	
+	}
     keyDown("space", () => {
-		go("main");
+		go("main", {extraLives: lives, initialScore: score});
 	});
 });
 
@@ -495,6 +595,6 @@ fetch("levels/"+currentLevel+".txt?"+Math.random())
 	.then((response) => response.text())
 	.then((text) => {
 		levelMap = text
-		go("main")
+		go("main", {extraLives: 2, initialScore: 0})
 		document.querySelector("canvas").focus()
 	})
