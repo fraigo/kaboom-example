@@ -1,8 +1,10 @@
-               *
-
-                                         \/        \/
+                                                                            + +    
+                                                                           ========   ===*
+               *                                                           
+                                                           P               
+                                         \/        \/                   #%#
         *    #%#*#               \/      []        []
                        \/        []      []        []
-                      +[]        []     +[]      ++[]
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X                     +[]        []     +[]      ++[]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXX   XXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXX   XXXXXX
