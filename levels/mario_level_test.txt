@@ -1,8 +1,9 @@
-                 $$
-  ## P     #    ==        $       P               .
-         $$              ###                     <|
-               ==                                 |
- =*=%=5                          =*=              |
-          =*=            $$$            \/        |
-X            + +X  $$                 + []        |
-XXXXXXXXXXXXXXXXXXXXX^    X    ^XXXXXXXXXXX X X XXXX
+                    $$
+                  (   +)
+     ##       #    ====      $       P               .
+            $$              ###                     <|
+                 ==                                  |
+    =*=%=5                          =*=              |
+             =*=            $$$            \/        |
+X               + +X  $$                 + []        |
+XXXXXXXXXXXXXXXXXXXXXXXX^    X    ^XXXXXXXXXXX X X XXXX
