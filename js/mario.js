@@ -149,7 +149,6 @@ scene("main", ({extraLives, initialScore}) => {
 		"<": function() { return [
 			sprite("tiles",{frame: 40}),
 			area({width: 14, height: 14, offset: {x:0, y:-2}}),
-			solid(),
 			origin("botleft"),
 			"flag"
 		]},
@@ -301,7 +300,7 @@ scene("main", ({extraLives, initialScore}) => {
 		area({width: 10, height: 16, offset: {x:-1, y:0}}),
 		body(),
 		"player",
-		{size:1, jumpPower: JUMP_FORCE}
+		{size:1, jumpPower: JUMP_FORCE, movable: true}
 	]);
 	var player1b = add([
 		sprite("player1b"),
@@ -312,7 +311,7 @@ scene("main", ({extraLives, initialScore}) => {
 		area({width: 12, height: 30, offset: {x:-1, y:0}}),
 		body(),
 		"player",
-		{size:2, jumpPower: JUMP_FORCE * 1.3}
+		{size:2, jumpPower: JUMP_FORCE * 1.2, movable: true}
 	]);
 	player1b.hidden = true;
 	player1b.solid = false;
@@ -415,6 +414,21 @@ scene("main", ({extraLives, initialScore}) => {
 			destroy(p)
 		}
 	})
+	basepole = 0
+	every("polebottom",function(p){
+		basepole = Math.max(basepole,p.pos.y)
+		console.log('minpole', basepole)
+	})
+	action("flag",function(p){
+		if (player.flagPos && !p.flagDown){
+			p.pos.y = player.pos.y
+			console.log('flag',p.pos.y)
+			if (p.pos.y==basepole){
+				p.flagDown = true
+				go("winlevel", { score: score.value, lives: lives.value });
+			}
+		}
+	})
 	action("goomba", function(g){
 		var diffx=Math.abs(player.pos.x-g.pos.x);
 		if (diffx<200 || g.moving){
@@ -438,14 +452,16 @@ scene("main", ({extraLives, initialScore}) => {
 
 	onCollide("flip", "block", (go, bl) => {
 		if (bl.pos.y<=go.pos.y && !go.flipping){
-			console.log('flip', go.moveDirection)
 			go.moveDirection *= -1
 			go.moveBy(go.moveDirection*2,0)
 			go.flipX(go.moveDirection>0)
 			go.flipping = true
 		}
 	})
-	// player grows big collides with an "mushroom" obj
+	onCollide("player", "polebottom", (p, m) => {
+		p.flagPos = true
+		player.movable = false
+	});
 	onCollide("player", "mushroom", (p, m) => {
 		destroy(m);
 		// as we defined in the big() component
@@ -516,6 +532,19 @@ scene("main", ({extraLives, initialScore}) => {
 			destroy(j)	
 		}
 	});
+	onCollide("player", "extralive", (pl, xt, coll) => {
+		var diffy = pl.pos.y - xt.pos.y;
+		console.log('colision',diffy, xt.frame)
+		if (diffy<15 && xt.frame!=52 && !xt.collided){
+			xt.collided = true
+			destroy(xt)
+			setTimeout(function(){
+				var xtNew = level.spawn("P", xt.gridPos.sub(0, 0))
+				xtNew.frame = xt.frame
+				xtNew.collided = false
+			},200)
+		}
+	})
 
 	// increase score if meets coin
 	onCollide("player", "coin", (p, c) => {
@@ -528,6 +557,9 @@ scene("main", ({extraLives, initialScore}) => {
 	// jump with space
 	keyPress("up", () => {
 		// these 2 functions are provided by body() component
+		if (!player.movable) {
+			return
+		}
 		player.frame=1;
 		if (player.grounded()) {
 			player.jump(player.jumpPower);
@@ -535,6 +567,9 @@ scene("main", ({extraLives, initialScore}) => {
 	});
 
 	keyDown("left", () => {
+		if (!player.movable) {
+			return
+		}
 		if (player.grounded()) {
 			var t = Math.round(time()*20)
 			player.frame=(t)%3;
@@ -544,6 +579,9 @@ scene("main", ({extraLives, initialScore}) => {
 	});
 
 	keyDown("right", () => {
+		if (!player.movable) {
+			return
+		}
 		if (player.grounded()) {
 			var t = Math.round(time()*20)
 			player.frame=(t)%3;
@@ -586,6 +624,35 @@ scene("lose", ({ score, lives }) => {
 		lives=2
 		score=0	
 	}
+    keyDown("space", () => {
+		go("main", {extraLives: lives, initialScore: score});
+	});
+});
+
+scene("winlevel", ({ score, lives }) => {
+	add([
+		sprite("player1a"),
+		pos(width() / 2 - 20, height() / 4),
+		scale(1.25),
+		fixed(),
+		origin("botleft"),
+		layer("ui")
+	]);
+	add([
+		text('x'+lives, {size:16,font:"sinko"}),
+		origin("bot"),
+		pos(width() / 2 + 10, height() / 4),
+	]);
+	add([
+		text('Score: '+score, {size:24,font:"sinko"}),
+		origin("bot"),
+		pos(width() / 2, height() / 2),
+	]);
+	add([
+		text('Level Completed!', {size:24,font:"sinko"}),
+		origin("bot"),
+		pos(width() / 2, height() * 3 / 4),
+	]);
     keyDown("space", () => {
 		go("main", {extraLives: lives, initialScore: score});
 	});
