@@ -3,7 +3,7 @@ window.kb = kaboom({
     width: 360,
     height: 360,
     scale: 2,
-	background: [0, 0, 0, 1],
+	background: [92, 148, 252, ],
 	fps: 12,
     plugins: [ peditPlugin, asepritePlugin, kbmspritePlugin ]
 });
@@ -24,12 +24,12 @@ loadSprite("tiles", "images/mario.png", {
 		},
 	},
 });
-loadSprite("player1a", "images/player1a.png", {
-	sliceX: 3,
+loadSprite("player1a", "images/mario_s1.png", {
+	sliceX: 6,
 	anims: {
 		move: {
 			from: 0,
-			to: 2,
+			to: 3,
 		},
 		idle: {
 			from: 0,
@@ -37,12 +37,25 @@ loadSprite("player1a", "images/player1a.png", {
 		},
 	},
 });
-loadSprite("player1b", "images/player1b.png", {
-	sliceX: 3,
+loadSprite("player1b", "images/mario_s2.png", {
+	sliceX: 7,
 	anims: {
 		move: {
 			from: 0,
-			to: 2,
+			to: 3,
+		},
+		idle: {
+			from: 0,
+			to: 0,
+		},
+	},
+});
+loadSprite("player1c", "images/mario_s3.png", {
+	sliceX: 8,
+	anims: {
+		move: {
+			from: 0,
+			to: 3,
 		},
 		idle: {
 			from: 0,
@@ -67,6 +80,7 @@ loadSprite("goomba", "images/goomba.png", {
 		},
 	},
 });
+
 loadSound("jump", "sounds/jump_small.wav");
 loadSound("coin", "sounds/smb_coin.wav");
 loadSound("powerup0", "sounds/smb_powerup_appears.wav");
@@ -86,13 +100,13 @@ scene("main", ({extraLives, initialScore}) => {
 
 	// define layers, draw "ui" on top, and "game" is the default layer
 	layers([
+		"bg",
 		"game",
 		"ui",
 	], "game");
 
 	// add level to scene
 	var map = levelMap.split('\n')
-	console.log('map', map)
 	const level = addLevel(map, {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
@@ -179,6 +193,12 @@ scene("main", ({extraLives, initialScore}) => {
 			area(),
 			origin("bot"),
 			"coin",
+		]},
+		"T": function() { return [
+			sprite("tiles",{frame: 0}),
+			area(),
+			origin("bot"),
+			"flower",
 		]},
 		"^": function() { return [
 			sprite("tiles",{frame:124}),
@@ -331,8 +351,21 @@ scene("main", ({extraLives, initialScore}) => {
 		"player",
 		{size:2, jumpPower: JUMP_FORCE * 1.2, movable: true}
 	]);
+	var player1c = add([
+		sprite("player1c"),
+		origin("bot"),
+		layer("game"),
+		pos(16, 10),
+		scale(1),
+		area({width: 12, height: 30, offset: {x:-1, y:0}}),
+		body(),
+		"player",
+		{size:2, jumpPower: JUMP_FORCE * 1.2, movable: true}
+	]);
 	player1b.hidden = true;
 	player1b.solid = false;
+	player1c.hidden = true;
+	player1c.solid = false;
 	window.player = player1a;
 
 	function showPlayer(p){
@@ -365,7 +398,11 @@ scene("main", ({extraLives, initialScore}) => {
 		if (obj.is("grow") && obj.frame==48) {
 			play("powerup0")
 			obj.frame=52;
-			level.spawn("@", obj.gridPos.sub(0, 1));
+			if (player.size == 1){
+				level.spawn("@", obj.gridPos.sub(0, 1));
+			} else {
+				level.spawn("T", obj.gridPos.sub(0, 1));
+			}
 		}
 		if (obj.is("extralive") && obj.frame==6) {
 			play("powerup0")
@@ -432,6 +469,11 @@ scene("main", ({extraLives, initialScore}) => {
 			destroy(p)
 		}
 	})
+	action("player", function(p){
+		if (!p.curAnim() && p.grounded()){
+			p.frame=0
+		}
+	})
 	basepole = 0
 	every("polebottom",function(p){
 		basepole = Math.max(basepole,p.pos.y)
@@ -482,10 +524,13 @@ scene("main", ({extraLives, initialScore}) => {
 	});
 	onCollide("player", "mushroom", (p, m) => {
 		destroy(m);
-		// as we defined in the big() component
-		// player.biggify(3);
 		play("powerup1")
 		showPlayer(player1b)
+	});
+	onCollide("player", "flower", (p, m) => {
+		destroy(m);
+		play("powerup1")
+		showPlayer(player1c)
 	});
 	onCollide("player", "live", (p, m) => {
 		if (m.hidden) return;
@@ -597,9 +642,8 @@ scene("main", ({extraLives, initialScore}) => {
 		if (!player.movable) {
 			return
 		}
-		if (player.grounded()) {
-			var t = Math.round(time()*20)
-			player.frame=(t)%3;
+		if (player.grounded() && player.curAnim()!="move") {
+			player.play("move");
 		}
 		player.flipX(true)
 		player.move(-MOVE_SPEED, 0);
@@ -609,9 +653,8 @@ scene("main", ({extraLives, initialScore}) => {
 		if (!player.movable) {
 			return
 		}
-		if (player.grounded()) {
-			var t = Math.round(time()*20)
-			player.frame=(t)%3;
+		if (player.grounded() && player.curAnim()!="move") {
+			player.play("move");
 		}
 		player.flipX(false)
 		player.move(MOVE_SPEED, 0);
