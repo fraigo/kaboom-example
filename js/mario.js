@@ -245,6 +245,24 @@ scene("main", ({extraLives, initialScore}) => {
 			origin("bot"),
 			"extralive",
 		]},
+		"(": function() { return [
+			sprite("tiles",{frame:6}),
+			area({width: 2, height: 15, offset: {x:9, y:0}}),
+			solid(),
+			origin("bot"),
+			"block",
+			"enemyblock",
+			{spawnBlock:"("}
+		]},
+		")": function() { return [
+			sprite("tiles",{frame:6}),
+			area({width: 2, height: 15, offset: {x:-9, y:0}}),
+			solid(),
+			origin("bot"),
+			"block",
+			"enemyblock",
+			{spawnBlock:")"}
+		]},
 		"p": function() { return [
 			sprite("tiles",{frame:4}),
 			area(),
@@ -295,7 +313,7 @@ scene("main", ({extraLives, initialScore}) => {
 		sprite("player1a"),
 		origin("bot"),
 		layer("game"),
-		pos(10, 5),
+		pos(16, 10),
 		scale(1),
 		area({width: 10, height: 16, offset: {x:-1, y:0}}),
 		body(),
@@ -306,7 +324,7 @@ scene("main", ({extraLives, initialScore}) => {
 		sprite("player1b"),
 		origin("bot"),
 		layer("game"),
-		pos(10, 5),
+		pos(16, 10),
 		scale(1),
 		area({width: 12, height: 30, offset: {x:-1, y:0}}),
 		body(),
@@ -532,6 +550,15 @@ scene("main", ({extraLives, initialScore}) => {
 			destroy(j)	
 		}
 	});
+	onCollide("player", "enemyblock", (pl, en, coll) => {
+		destroy(en)
+		if (!en.blocked){
+			en.blocked = true
+			setTimeout(function(){
+				var xtNew = level.spawn(en.spawnBlock, en.gridPos.sub(0, 0))
+			},200)	
+		}
+	})
 	onCollide("player", "extralive", (pl, xt, coll) => {
 		var diffy = pl.pos.y - xt.pos.y;
 		console.log('colision',diffy, xt.frame)
