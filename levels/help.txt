@@ -1,0 +1,20 @@
+
+X floor
+# brick crash
+= brick floor
+* box 1 coin
+5 box 5 coins
+% box mushroom
++ goomba
+$ coin
+P 1Up
+( enemy wall left
+) enemy wall right
+
+ .
+<|
+ | flag
+
+ \/
+ [] pipe
+
