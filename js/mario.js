@@ -113,6 +113,13 @@ scene("main", ({extraLives, initialScore}) => {
 		width: 17,
 		height: 17,
 		// define each object as a list of components
+		"M": function() { return [
+			sprite("tiles",{frame: 6}),
+			area(),
+			solid(),
+			origin("bot"),
+			"start"
+		]},
 		"=": function() { return [
 			sprite("tiles",{frame: 82}),
 			area(),
@@ -352,7 +359,7 @@ scene("main", ({extraLives, initialScore}) => {
 		sprite("player1b"),
 		origin("bot"),
 		layer("game"),
-		pos(16, 10),
+		pos(0, 0),
 		scale(1),
 		area({width: 12, height: 30, offset: {x:-1, y:0}}),
 		body(),
@@ -363,7 +370,7 @@ scene("main", ({extraLives, initialScore}) => {
 		sprite("player1c"),
 		origin("bot"),
 		layer("game"),
-		pos(16, 10),
+		pos(0, 0),
 		scale(1),
 		area({width: 12, height: 30, offset: {x:-1, y:0}}),
 		body(),
@@ -456,6 +463,12 @@ scene("main", ({extraLives, initialScore}) => {
 	player1a.on("headbutt", onHeadbutt);
 	player1b.on("headbutt", onHeadbutt);
 
+	action("start", function(s){
+		console.log('start',s.pos.x,s.pos.y)
+		player.pos.x = s.pos.x
+		player.pos.y = s.pos.y
+		destroy(s)
+	})
 	action("mushroom", function(p){
 		p.move(p.moveDirection*50,0)
 		p.flipping = false
