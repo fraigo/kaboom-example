@@ -201,15 +201,26 @@ function drop(ev) {
   ev.preventDefault();
   var data = ev.dataTransfer.getData("text");
   var el = document.getElementById(data)
-  if (el.className.indexOf("duplicable")>=0){
+  if (el.className.indexOf("duplicable")>=0 || shiftPressed){
     var src = el.parentNode
     src.innerHTML = el.outerHTML
     el.id = "d"+Math.random()
   }
-  ev.target.innerHTML='';
+  ev.target.innerText='';
   el.className = "tile draggable"
-  ev.target.appendChild(el);
+  if (ev.target.getAttribute("dropped")){
+    el.parentNode.removeChild(el)
+    ev.target.innerHTML = ev.target.getAttribute("dropped")
+  } else {
+    ev.target.appendChild(el);
+  }
   localStorage.setItem('currentmap',getMap());
+}
+
+var shiftPressed = false
+function shiftMonitor(ev){
+    shiftPressed = ev.shiftKey
+    console.log('shift', shiftPressed)
 }
 
 var mapData = 'X';
@@ -237,6 +248,8 @@ function loadMap(){
             fillMap(lines)
         })
     }
+    document.body.onkeydown = shiftMonitor
+    document.body.onkeyup = shiftMonitor
 }
 
 
@@ -395,7 +408,7 @@ function copyTextToClipboard(text) {
     <div class="toolbar">
         <div>
             <div class="tile">
-                <div id="trash" class="tile map trash" ondrop="drop(event)" ondragover="allowDrop(event)" >🗑</div>
+                <div id="trash" class="tile map trash" dropped="🗑" ondrop="drop(event)" ondragover="allowDrop(event)" >🗑</div>
             </div>
             <div class="tile">
                 <div></div>
