@@ -126,6 +126,9 @@ body{
 .toolbar > .tile{
     margin-bottom: 6px;
 }
+.trash .tile{
+    display: none !important;
+}
 </style>
 <script>
 var dragElement = null
@@ -278,7 +281,7 @@ function fillMap(lines, newRows, newCols){
 }
 
 function getMap(){
-    var t=document.querySelectorAll(".tile.map")
+    var t=document.querySelectorAll(".container .tile.map")
     var content = "";
     var colnum = 0
     t.forEach(function(i){
@@ -299,7 +302,7 @@ function getMap(){
 <div class="editor">
     <div class="toolbar">
         <div class="tile">
-            <div id="c1" class="tile draggable duplicable" s="X" tgt="map" draggable="true" ondragstart="drag(event)">X</div>
+            <div id="trash" class="tile map trash" ondrop="drop(event)" ondragover="allowDrop(event)" >🗑</div>
         </div>
         <div class="tile">
             <div id="c2" class="tile draggable duplicable" s="#" tgt="map" draggable="true" ondragstart="drag(event)">#</div>
