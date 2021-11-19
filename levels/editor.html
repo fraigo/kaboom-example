@@ -50,7 +50,10 @@ body{
 }
 .toolbar{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 72px;
+    flex-shrink: 0;
 }
 .buttons{
     padding: 8px;
@@ -70,6 +73,9 @@ body{
 }
 .tile[s='X']{
     background-position: 0px -238px, -204px 0;
+}
+.tile[s='x']{
+    background-position: -170px -102px, -204px 0;
 }
 .tile[s='#']{
     background-position: -68px -170px, -204px 0;
@@ -373,47 +379,64 @@ function copyTextToClipboard(text) {
 
 <div class="editor">
     <div class="toolbar">
-        <div class="tile">
-            <div id="trash" class="tile map trash" ondrop="drop(event)" ondragover="allowDrop(event)" >🗑</div>
-        </div>
-        <div class="tile">
-            <div id="c1" class="tile draggable duplicable" s="X" tgt="map" draggable="true" ondragstart="drag(event)">X</div>
-        </div>
-        <div class="tile">
-            <div id="c2" class="tile draggable duplicable" s="#" tgt="map" draggable="true" ondragstart="drag(event)">#</div>
-        </div>
-        <div class="tile">
-            <div id="c3" class="tile draggable duplicable" s="=" tgt="map" draggable="true" ondragstart="drag(event)">=</div>
-        </div>
-        <div class="tile">
-            <div id="c4" class="tile draggable duplicable" s="*" tgt="map" draggable="true" ondragstart="drag(event)">*</div>
-        </div>
-        <div class="tile">
-            <div id="c5" class="tile draggable duplicable" s="%" tgt="map" draggable="true" ondragstart="drag(event)">%</div>
-        </div>
-        <div class="tile">
-            <div id="c6" class="tile draggable duplicable" s="@" tgt="map" draggable="true" ondragstart="drag(event)">@</div>
-        </div>
-        <div class="tile">
-            <div id="c7" class="tile draggable duplicable" s="$" tgt="map" draggable="true" ondragstart="drag(event)">$</div>
-        </div>
-        <div class="tile">
-            <div id="c8" class="tile draggable duplicable" s="5" tgt="map" draggable="true" ondragstart="drag(event)">5</div>
-        </div>
-        <div class="tile">
-            <div id="c9" class="tile draggable duplicable" s="P" tgt="map" draggable="true" ondragstart="drag(event)">P</div>
-        </div>
-        <div class="tile">
-            <div id="c10" class="tile draggable duplicable" s="^" tgt="map" draggable="true" ondragstart="drag(event)">^</div>
-        </div>
-        <div class="tile">
-            <div id="c11" class="tile draggable duplicable" s="." tgt="map" draggable="true" ondragstart="drag(event)">.</div>
-        </div>
-        <div class="tile">
-            <div id="c12" class="tile draggable duplicable" s="|" tgt="map" draggable="true" ondragstart="drag(event)">|</div>
-        </div>
-        <div class="tile">
-            <div id="goomba" class="tile draggable duplicable" s="+" tgt="map" draggable="true" ondragstart="drag(event)">+</div>
+        <div>
+            <div class="tile">
+                <div id="trash" class="tile map trash" ondrop="drop(event)" ondragover="allowDrop(event)" >🗑</div>
+            </div>
+            <div class="tile">
+                <div></div>
+            </div>
+            <div class="tile">
+                <div id="c1" class="tile draggable duplicable" s="X" tgt="map" draggable="true" ondragstart="drag(event)">X</div>
+            </div>
+            <div class="tile">
+                <div id="c2" class="tile draggable duplicable" s="#" tgt="map" draggable="true" ondragstart="drag(event)">#</div>
+            </div>
+            <div class="tile">
+                <div id="c3" class="tile draggable duplicable" s="=" tgt="map" draggable="true" ondragstart="drag(event)">=</div>
+            </div>
+            <div class="tile">
+                <div id="c4" class="tile draggable duplicable" s="*" tgt="map" draggable="true" ondragstart="drag(event)">*</div>
+            </div>
+            <div class="tile">
+                <div id="c5" class="tile draggable duplicable" s="%" tgt="map" draggable="true" ondragstart="drag(event)">%</div>
+            </div>
+            <div class="tile">
+                <div id="c6" class="tile draggable duplicable" s="@" tgt="map" draggable="true" ondragstart="drag(event)">@</div>
+            </div>
+            <div class="tile">
+                <div id="c7" class="tile draggable duplicable" s="$" tgt="map" draggable="true" ondragstart="drag(event)">$</div>
+            </div>
+            <div class="tile">
+                <div id="c8" class="tile draggable duplicable" s="5" tgt="map" draggable="true" ondragstart="drag(event)">5</div>
+            </div>
+            <div class="tile">
+                <div id="c9" class="tile draggable duplicable" s="P" tgt="map" draggable="true" ondragstart="drag(event)">P</div>
+            </div>
+            <div class="tile">
+                <div id="c10" class="tile draggable duplicable" s="x" tgt="map" draggable="true" ondragstart="drag(event)">x</div>
+            </div>
+            <div class="tile">
+                <div id="c10" class="tile draggable duplicable" s="^" tgt="map" draggable="true" ondragstart="drag(event)">^</div>
+            </div>
+            <div class="tile">
+                <div id="c11" class="tile draggable duplicable" s="." tgt="map" draggable="true" ondragstart="drag(event)">.</div>
+            </div>
+            <div class="tile">
+                <div id="fl1" class="tile draggable duplicable" s="&lt;" tgt="map" draggable="true" ondragstart="drag(event)">&lt;</div>
+            </div>
+            <div class="tile">
+                <div id="c12" class="tile draggable duplicable" s="|" tgt="map" draggable="true" ondragstart="drag(event)">|</div>
+            </div>
+            <div class="tile">
+                <div id="goomba" class="tile draggable duplicable" s="+" tgt="map" draggable="true" ondragstart="drag(event)">+</div>
+            </div>
+            <div class="tile">
+                <div id="t1" class="tile draggable duplicable" s="(" tgt="map" draggable="true" ondragstart="drag(event)">(</div>
+            </div>
+            <div class="tile">
+                <div id="t2" class="tile draggable duplicable" s=")" tgt="map" draggable="true" ondragstart="drag(event)">)</div>
+            </div>
         </div>
     </div>    
     <div class="tiles">

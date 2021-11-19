@@ -137,6 +137,14 @@ scene("main", ({extraLives, initialScore}) => {
 			"floor",
 			"block"
 		]},
+		"x": function() { return [
+			sprite("tiles",{frame: 53}),
+			area(),
+			solid(),
+			origin("bot"),
+			"floor",
+			"block"
+		]},
 		"[": function() { return [
 			sprite("tiles",{frame: 54}),
 			area(),
