@@ -418,11 +418,11 @@ function copyTextToClipboard(text) {
 <body onload="loadMap()">
 
 <div class="buttons">
-    <button id="code" class="code" onclick="copyTextToClipboard(getMap())">Copy</button>
     <button id="reset" class="code" onclick="localStorage.clear();loadMap();">Reset</button>
     <button id="new1" class="code" onclick="localStorage.setItem('currentmap','   \n   \n   \n');loadMap();">New</button>
     <button id="new1" class="code" onclick="window.open('../?currentmap','preview')">Preview</button>
-    <button id="new1" class="code" onclick="copyTextToClipboard(getUrl())">Link</button>
+    <button id="new1" class="code" onclick="copyTextToClipboard(getUrl())">Copy Link</button>
+    <button id="code" class="code" onclick="copyTextToClipboard(getMap())">Copy data</button>
 </div>
 
 <div class="editor">

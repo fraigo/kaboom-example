@@ -498,7 +498,6 @@ scene("main", ({extraLives, initialScore}) => {
 	basepole = 0
 	every("polebottom",function(p){
 		basepole = Math.max(basepole,p.pos.y)
-		console.log('minpole', basepole)
 	})
 	action("flag",function(p){
 		if (player.flagPos && !p.flagDown){
@@ -749,10 +748,15 @@ scene("winlevel", ({ score, lives }) => {
 	});
 });
 
-if (document.location.hash.length>2){
+function loadHash(){
 	levelMap = decodeURIComponent(document.location.hash.substring(1).replace(/N/g,'\n').replace(/_/,' '))
 	go("main", {extraLives: 2, initialScore: 0})
 	document.querySelector("canvas").focus()
+}
+window.onhashchange = loadHash;
+
+if (document.location.hash.length>2){
+	loadHash()
 } else if (currentLevel=='currentmap'){
 	levelMap = localStorage.getItem('currentmap')
 	go("main", {extraLives: 2, initialScore: 0})
