@@ -1,0 +1,19 @@
+x    5 5    x
+x           x
+xx*xxxxxxxx x
+x           x
+x(    +     x
+x xxxxxxxx*xx
+x           x
+x   +    + )x
+xx*xxxxxxxx x
+x           x
+x(  + + +   x
+x x%xxxxxx*xx
+x           x
+x +  + +   )x
+xxxx*xxxxxx x
+x .         x
+x<|         x
+x |+ +  + + x
+xxxxxxxxxxxxx

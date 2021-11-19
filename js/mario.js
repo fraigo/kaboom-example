@@ -736,10 +736,16 @@ scene("winlevel", ({ score, lives }) => {
 	});
 });
 
-fetch("levels/"+currentLevel+".txt?"+Math.random())
+if (currentLevel=='currentmap'){
+	levelMap = localStorage.getItem('currentmap')
+	go("main", {extraLives: 2, initialScore: 0})
+	document.querySelector("canvas").focus()
+} else {
+	fetch("levels/"+currentLevel+".txt?"+Math.random())
 	.then((response) => response.text())
 	.then((text) => {
 		levelMap = text
 		go("main", {extraLives: 2, initialScore: 0})
 		document.querySelector("canvas").focus()
 	})
+}
