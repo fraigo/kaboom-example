@@ -309,7 +309,7 @@ scene("main", ({extraLives, initialScore}) => {
 
 	add([
 		sprite("player1a"),
-		pos(300,30),
+		pos(280,30),
 		scale(1.25),
 		fixed(),
 		origin("botleft"),
@@ -668,7 +668,7 @@ scene("lose", ({ score, lives }) => {
 	if (lives>=0){
 		add([
 			sprite("player1a"),
-			pos(width() / 2 - 20, height() / 4),
+			pos(width() / 2 - 40, height() / 4),
 			scale(1.25),
 			fixed(),
 			origin("botleft"),
@@ -702,7 +702,7 @@ scene("lose", ({ score, lives }) => {
 scene("winlevel", ({ score, lives }) => {
 	add([
 		sprite("player1a"),
-		pos(width() / 2 - 20, height() / 4),
+		pos(width() / 2 - 40, height() / 4),
 		scale(1.25),
 		fixed(),
 		origin("botleft"),
