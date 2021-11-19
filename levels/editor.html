@@ -324,7 +324,7 @@ function getMap(){
             colnum=0
         }
     })
-    return content
+    return content.trim()
 }
 
 function fallbackCopyTextToClipboard(text) {
@@ -368,6 +368,7 @@ function copyTextToClipboard(text) {
 
 <div class="buttons">
     <button id="code" class="code" onclick="copyTextToClipboard(getMap())">Copy</button>
+    <button id="code" class="code" onclick="localStorage.clear();loadMap();">Reset</button>
 </div>
 
 <div class="editor">
