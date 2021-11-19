@@ -94,9 +94,9 @@ loadSound("die", "sounds/smb_mariodie.wav");
 scene("main", ({extraLives, initialScore}) => {
 
 	// define some constants
-	const JUMP_FORCE = 460;
-	const MOVE_SPEED = 120;
-	const FALL_DEATH = 640;
+	var JUMP_FORCE = 460;
+	var MOVE_SPEED = 120;
+	var FALL_DEATH = 940;
 
 	// define layers, draw "ui" on top, and "game" is the default layer
 	layers([
@@ -547,6 +547,28 @@ scene("main", ({extraLives, initialScore}) => {
 		play("powerup1")
 		showPlayer(player1b)
 	});
+	onCollide("player", "pipetop", (p1, p2) => {
+		var diffy = p1.pos.y - p2.pos.y
+		if (diffy<-16 && player.crouch){
+			console.log('enter')
+			p2.area.scale.y=0.90
+			player.z=-1
+			var proc=0
+			p1.movable=false
+			proc=setInterval(function(){
+				p2.area.scale.y-=0.1
+				if (p2.area.scale.y<=0){
+					if (!p1.movable){
+						p1.movable=true
+						p2.area.scale.y=1;
+						clearInterval(proc)
+						go("main", {extraLives: lives.value, initialScore: score.value})	
+					}
+				}
+			},100)
+
+		}
+	});
 	onCollide("player", "flower", (p, m) => {
 		destroy(m);
 		play("powerup1")
@@ -652,11 +674,26 @@ scene("main", ({extraLives, initialScore}) => {
 		if (!player.movable) {
 			return
 		}
-		player.frame=1;
+		player.frame=5;
 		if (player.grounded()) {
 			player.jump(player.jumpPower);
 		}
 	});
+
+	keyPress("down", () => {
+		// these 2 functions are provided by body() component
+		if (!player.movable) {
+			return
+		}
+		if (player.grounded()) {
+			player.frame=1;
+			player.moveBy(0,-2);
+			player.crouch = true;
+			setTimeout(function(){
+				player.crouch = false;
+			},250)
+		}
+	});	
 
 	keyDown("left", () => {
 		if (!player.movable) {
