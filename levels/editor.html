@@ -36,6 +36,8 @@ body{
 }
 .tiles{
     overflow: auto;
+    flex-wrap: wrap;
+    flex-direction: column;
 }
 .tiles .container{
     display: flex;
@@ -48,6 +50,9 @@ body{
 .toolbar{
     display: flex;
     flex-direction: column;
+}
+.buttons{
+    padding: 8px;
 }
 .tile{
     width: 34px;
@@ -104,6 +109,18 @@ body{
 .tile[s='P']{
     background-position: -136px 0, -204px 0;
 }
+.tile[s='^']{
+    background-position: -408px -238px, -204px 0;
+}
+.tile[s='|']{
+    background-position: -170px -68px, -204px 0;
+}
+.tile[s='.']{
+    background-position: -170px -34px, -204px 0;
+}
+.tile[s='<']{
+    background-position: -272px -68px, -204px 0;
+}
 .tile[s='+']{
     background-image: url(../images/goomba.png);
     background-size: 102px 34px;
@@ -128,6 +145,9 @@ body{
 }
 .trash .tile{
     display: none !important;
+}
+.firstrow{
+    display: flex;
 }
 </style>
 <script>
@@ -188,6 +208,11 @@ function drop(ev) {
 var mapData = 'X';
 var rows = 10;
 var cols = 20;
+var curfile = "./mario_level-1-1.txt";
+var param = document.location.search.replace('?','')
+if (param!=''){
+    curfile = "./"+param+".txt"
+}
 
 function loadMap(){
     var curmap=localStorage.getItem('currentmap');
@@ -196,7 +221,7 @@ function loadMap(){
         lines = curmap.split("\n")
         fillMap(lines)
     } else {
-        fetch("./mario_level-1-1.txt")
+        fetch(curfile)
         .then(function(response) { return response.text() })
         .then(function(text) { 
             console.log('text', text);
@@ -218,15 +243,17 @@ function fillMap(lines, newRows, newCols){
     console.log('cols', cols, rows)
     var c = document.querySelector(".container")
     c.innerHTML = ''
+    var t = document.createElement("div")
+    t.className="firstrow"
     var e = document.createElement("div")
     e.className = "tile header"
     e.innerText = ""
-    c.appendChild(e)
+    t.appendChild(e)
     for(var x=0; x<cols ; x++) {
         var e = document.createElement("div")
         e.className = "tile header"
         e.innerText = x
-        c.appendChild(e)
+        t.appendChild(e)
     }
     var e = document.createElement("div")
     e.className = "tile header addtiles"
@@ -236,7 +263,8 @@ function fillMap(lines, newRows, newCols){
         fillMap(lines, rows, cols+1)
         localStorage.setItem('currentmap',getMap());
     }
-    c.appendChild(e)
+    t.appendChild(e)
+    c.appendChild(t)
     var e = document.createElement("div")
     e.className = "sep"
     c.appendChild(e)
@@ -295,9 +323,49 @@ function getMap(){
     })
     return content
 }
+
+function fallbackCopyTextToClipboard(text) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  
+  // Avoid scrolling to bottom
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+    console.log('Fallback: Copying text command was ' + msg);
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+  document.body.removeChild(textArea);
+}
+
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
+
 </script>
 </head>
 <body onload="loadMap()">
+
+<div class="buttons">
+    <button id="code" class="code" onclick="copyTextToClipboard(getMap())">Copy</button>
+</div>
 
 <div class="editor">
     <div class="toolbar">
@@ -329,11 +397,21 @@ function getMap(){
             <div id="c9" class="tile draggable duplicable" s="P" tgt="map" draggable="true" ondragstart="drag(event)">P</div>
         </div>
         <div class="tile">
+            <div id="c10" class="tile draggable duplicable" s="^" tgt="map" draggable="true" ondragstart="drag(event)">^</div>
+        </div>
+        <div class="tile">
+            <div id="c11" class="tile draggable duplicable" s="." tgt="map" draggable="true" ondragstart="drag(event)">.</div>
+        </div>
+        <div class="tile">
+            <div id="c12" class="tile draggable duplicable" s="|" tgt="map" draggable="true" ondragstart="drag(event)">|</div>
+        </div>
+        <div class="tile">
             <div id="goomba" class="tile draggable duplicable" s="+" tgt="map" draggable="true" ondragstart="drag(event)">+</div>
         </div>
     </div>    
     <div class="tiles">
         <div class="container"></div>
+        <div class="empty"></div>
     </div>    
 </div>
 
