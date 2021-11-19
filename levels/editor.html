@@ -43,6 +43,7 @@ body{
     display: flex;
     flex-wrap: wrap;
     flex-shrink: 0;
+    padding-right: 102px;
 }
 .tiles .sep{
     flex: 1 0 100%;
@@ -242,6 +243,7 @@ function fillMap(lines, newRows, newCols){
     }
     console.log('cols', cols, rows)
     var c = document.querySelector(".container")
+    var tiles = document.querySelector(".tiles")
     c.innerHTML = ''
     var t = document.createElement("div")
     t.className="firstrow"
@@ -261,6 +263,7 @@ function fillMap(lines, newRows, newCols){
     e.onclick=function(){
         lines = getMap().split("\n")
         fillMap(lines, rows, cols+1)
+        tiles.scrollBy(34,0)
         localStorage.setItem('currentmap',getMap());
     }
     t.appendChild(e)
@@ -371,6 +374,9 @@ function copyTextToClipboard(text) {
     <div class="toolbar">
         <div class="tile">
             <div id="trash" class="tile map trash" ondrop="drop(event)" ondragover="allowDrop(event)" >🗑</div>
+        </div>
+        <div class="tile">
+            <div id="c1" class="tile draggable duplicable" s="X" tgt="map" draggable="true" ondragstart="drag(event)">X</div>
         </div>
         <div class="tile">
             <div id="c2" class="tile draggable duplicable" s="#" tgt="map" draggable="true" ondragstart="drag(event)">#</div>
