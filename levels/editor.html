@@ -147,6 +147,10 @@ body{
     border: 1px solid #444;
     background-color: #444;
 }
+.firstrow > .header{
+    border: 1px solid #448;
+    background-color: #448;
+}
 .toolbar > .tile{
     margin-bottom: 6px;
 }
@@ -268,7 +272,16 @@ function fillMap(lines, newRows, newCols){
     t.className="firstrow"
     var e = document.createElement("div")
     e.className = "tile header"
-    e.innerText = ""
+    e.innerText = "+"
+    e.onclick=function(){
+        lines = getMap().split("\n")
+        for(var x=0; x<lines.length; x++) {
+            lines[x]=' '+lines[x]
+        }
+        fillMap(lines, rows, cols+1)
+        tiles.scrollBy(34,0)
+        localStorage.setItem('currentmap',getMap());
+    }
     t.appendChild(e)
     for(var x=0; x<cols ; x++) {
         var e = document.createElement("div")
@@ -444,7 +457,7 @@ function copyTextToClipboard(text) {
                 <div id="c10" class="tile draggable duplicable" s="x" tgt="map" draggable="true" ondragstart="drag(event)">x</div>
             </div>
             <div class="tile">
-                <div id="c10" class="tile draggable duplicable" s="^" tgt="map" draggable="true" ondragstart="drag(event)">^</div>
+                <div id="ctr" class="tile draggable duplicable" s="^" tgt="map" draggable="true" ondragstart="drag(event)">^</div>
             </div>
             <div class="tile">
                 <div id="c11" class="tile draggable duplicable" s="." tgt="map" draggable="true" ondragstart="drag(event)">.</div>
