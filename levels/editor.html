@@ -373,6 +373,11 @@ function getMap(){
     return content.trimEnd()
 }
 
+function getUrl(){
+    var url = document.location.protocol + '//' + document.location.host + document.location.pathname.split('levels/editor')[0]
+    return url+'#'+encodeURIComponent(getMap().split('\n').join('N').replace(/ /g,'_'))
+}
+
 function fallbackCopyTextToClipboard(text) {
   var textArea = document.createElement("textarea");
   textArea.value = text;
@@ -416,6 +421,8 @@ function copyTextToClipboard(text) {
     <button id="code" class="code" onclick="copyTextToClipboard(getMap())">Copy</button>
     <button id="reset" class="code" onclick="localStorage.clear();loadMap();">Reset</button>
     <button id="new1" class="code" onclick="localStorage.setItem('currentmap','   \n   \n   \n');loadMap();">New</button>
+    <button id="new1" class="code" onclick="window.open('../?currentmap','preview')">Preview</button>
+    <button id="new1" class="code" onclick="copyTextToClipboard(getUrl())">Link</button>
 </div>
 
 <div class="editor">

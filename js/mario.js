@@ -596,7 +596,7 @@ scene("main", ({extraLives, initialScore}) => {
 	onCollide("player", "jumpy", (p, j) => {
 		console.log('jumpy')
 		setTimeout(function(){
-			p.jump(JUMP_FORCE*2)
+			p.jump(JUMP_FORCE*1.5)
 		},10)
 		p.frame=1;
 		j.frame=123;
@@ -749,7 +749,11 @@ scene("winlevel", ({ score, lives }) => {
 	});
 });
 
-if (currentLevel=='currentmap'){
+if (document.location.hash.length>2){
+	levelMap = decodeURIComponent(document.location.hash.substring(1).replace(/N/g,'\n').replace(/_/,' '))
+	go("main", {extraLives: 2, initialScore: 0})
+	document.querySelector("canvas").focus()
+} else if (currentLevel=='currentmap'){
 	levelMap = localStorage.getItem('currentmap')
 	go("main", {extraLives: 2, initialScore: 0})
 	document.querySelector("canvas").focus()
