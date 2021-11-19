@@ -1,0 +1,338 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script src="http://bernardo-castilho.github.io/DragDropTouch/DragDropTouch.js"></script>
+<style>
+body{
+    background-color: #000;
+}
+.draggable {
+    cursor: grab;
+}
+.long, *[tgt='long']{
+    border: 2px solid green;
+}
+.short, *[tgt='short']{
+    border: 2px solid blue;
+}
+#item1{
+    width: 300px;
+}
+#item1 img{
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+*[nondropable]{
+    opacity: 0.5;
+}
+.editor{
+    min-width: 100%;
+    display: flex;
+}
+.tiles, .toolbar{
+    padding: 8px;
+    border: 1px solid #eee;
+    display: flex;
+}
+.tiles{
+    overflow: auto;
+}
+.tiles .container{
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+.tiles .sep{
+    flex: 1 0 100%;
+}
+.toolbar{
+    display: flex;
+    flex-direction: column;
+}
+.tile{
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url(../images/mario.png), url(../images/mario.png);
+    background-size: 546px 272px, 546px 272px;
+    background-position: -204px 0, -204px 0;
+    background-repeat: no-repeat, no-repeat;
+    box-sizing: border-box;
+    color: #fff;
+}
+.tile[s='X']{
+    background-position: 0px -238px, -204px 0;
+}
+.tile[s='#']{
+    background-position: -68px -170px, -204px 0;
+}
+.tile[s='=']{
+    background-position: -34px -170px, -204px 0;
+}
+.tile[s='*']{
+    background-position: 0 -68px, -1px -102px;
+}
+.tile[s='%']{
+    background-position: -170px 0, -1px -102px;
+}
+.tile[s='5']{
+    background-position: 0 -68px, -34px -170px;
+}
+.tile[s='@']{
+    background-position: -68px -170px, -204px 0;
+}
+.tile[s='$']{
+    background-position: -68px -170px, -204px 0;
+}
+.tile[s='\\']{
+    background-position: -204px -68px, -204px 0;
+}
+.tile[s='/']{
+    background-position: -238px -68px, -204px 0;
+}
+.tile[s='[']{
+    background-position: -204px -102px, -204px 0;
+}
+.tile[s=']']{
+    background-position: -238px -102px, -204px 0;
+}
+.tile[s='S']{
+    background-position: -102px -34px, -204px 0;
+}
+.tile[s='P']{
+    background-position: -136px 0, -204px 0;
+}
+.tile[s='+']{
+    background-image: url(../images/goomba.png);
+    background-size: 102px 34px;
+    background-position: 0px 0px;
+}
+.map > .tile[nondropable='true']{
+    display: none !important;
+}
+.block{
+    background-position: 0 0;
+}
+.container > .tile{
+    border: 1px solid rgb(90, 140, 255);
+    background-color: rgb(92, 148, 252);
+}
+.container > .header{
+    border: 1px solid #444;
+    background-color: #444;
+}
+.toolbar > .tile{
+    margin-bottom: 6px;
+}
+</style>
+<script>
+var dragElement = null
+var clearId = null
+var clearId2 = null
+var lastDrop = null
+var lastDrop2 = null
+function allowDrop(ev) {
+  var tgt = dragElement.getAttribute('tgt')
+  var classes = ev.target.className.split(' ')
+  if (classes.indexOf(tgt)>-1) {
+    ev.preventDefault();  
+    console.log(tgt)
+    ev.target.style.opacity='';
+    var tgt = ev.target;
+    if (lastDrop){
+        lastDrop.removeAttribute('dropable')
+    }
+    lastDrop = tgt;
+    lastDrop.setAttribute('dropable',true);
+    clearTimeout(clearId)
+    clearId=setTimeout(function(){
+        tgt.removeAttribute('dropable')
+    },200)
+  } else {
+    var tgt = ev.target;
+    if (lastDrop2){
+        lastDrop2.removeAttribute('nondropable')
+    }
+    lastDrop2 = tgt;
+    lastDrop2.setAttribute('nondropable',true);
+    clearTimeout(clearId2)
+    clearId2=setTimeout(function(){tgt.removeAttribute('nondropable');},300)
+  }
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+  dragElement = ev.target;
+}
+
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  var el = document.getElementById(data)
+  if (el.className.indexOf("duplicable")>=0){
+    var src = el.parentNode
+    src.innerHTML = el.outerHTML
+    el.id = "d"+Math.random()
+  }
+  ev.target.innerHTML='';
+  el.className = "tile draggable"
+  ev.target.appendChild(el);
+  localStorage.setItem('currentmap',getMap());
+}
+
+var mapData = 'X';
+var rows = 10;
+var cols = 20;
+
+function loadMap(){
+    var curmap=localStorage.getItem('currentmap');
+    if (curmap){
+        console.log('map',curmap)
+        lines = curmap.split("\n")
+        fillMap(lines)
+    } else {
+        fetch("./mario_level-1-1.txt")
+        .then(function(response) { return response.text() })
+        .then(function(text) { 
+            console.log('text', text);
+            mapData=text
+            lines = mapData.split("\n")
+            fillMap(lines)
+        })
+    }
+}
+
+
+
+function fillMap(lines, newRows, newCols){
+    rows=newRows || lines.length
+    cols=newCols || 1
+    for(var i=0; i<lines.length; i++) {
+        cols = Math.max(cols, lines[i].length);
+    }
+    console.log('cols', cols, rows)
+    var c = document.querySelector(".container")
+    c.innerHTML = ''
+    var e = document.createElement("div")
+    e.className = "tile header"
+    e.innerText = ""
+    c.appendChild(e)
+    for(var x=0; x<cols ; x++) {
+        var e = document.createElement("div")
+        e.className = "tile header"
+        e.innerText = x
+        c.appendChild(e)
+    }
+    var e = document.createElement("div")
+    e.className = "tile header addtiles"
+    e.innerText = '+'
+    e.onclick=function(){
+        lines = getMap().split("\n")
+        fillMap(lines, rows, cols+1)
+        localStorage.setItem('currentmap',getMap());
+    }
+    c.appendChild(e)
+    var e = document.createElement("div")
+    e.className = "sep"
+    c.appendChild(e)
+    for(var y=0; y<rows; y++){
+        var e = document.createElement("div")
+        e.className = "tile header"
+        e.innerText = y
+        c.appendChild(e)
+        for(var x=0; x<cols ; x++) {
+            var e1 = document.createElement("div")
+            e1.className = "tile map"
+            e1.ondrop = drop
+            e1.ondragover = allowDrop
+            var value = lines[y][x]
+            if (value && value!=' '){
+                var e = document.createElement("div")
+                e.className = "tile draggable"
+                e.ondragstart = drag
+                e.id="cell-"+x+"-"+y
+                e.setAttribute("tgt","map")
+                e.setAttribute("draggable","true")
+                e.setAttribute("s",lines[y][x])
+                e.innerText=lines[y][x]
+                e1.appendChild(e)
+            }
+            c.appendChild(e1)
+        }
+        var e = document.createElement("div")
+        e.className = "sep"
+        c.appendChild(e)
+    }
+    var e = document.createElement("div")
+    e.className = "tile header"
+    e.innerText = "+"
+    e.onclick=function(){
+        lines = getMap().split("\n")
+        fillMap(lines, rows+1, cols)
+        localStorage.setItem('currentmap',getMap());
+    }
+    c.appendChild(e)
+
+}
+
+function getMap(){
+    var t=document.querySelectorAll(".tile.map")
+    var content = "";
+    var colnum = 0
+    t.forEach(function(i){
+        var txt = i.innerText;
+        content += txt == '' ? ' ' : txt
+        colnum++
+        if (colnum==cols){
+            content += "\n"
+            colnum=0
+        }
+    })
+    return content
+}
+</script>
+</head>
+<body onload="loadMap()">
+
+<div class="editor">
+    <div class="toolbar">
+        <div class="tile">
+            <div id="c1" class="tile draggable duplicable" s="X" tgt="map" draggable="true" ondragstart="drag(event)">X</div>
+        </div>
+        <div class="tile">
+            <div id="c2" class="tile draggable duplicable" s="#" tgt="map" draggable="true" ondragstart="drag(event)">#</div>
+        </div>
+        <div class="tile">
+            <div id="c3" class="tile draggable duplicable" s="=" tgt="map" draggable="true" ondragstart="drag(event)">=</div>
+        </div>
+        <div class="tile">
+            <div id="c4" class="tile draggable duplicable" s="*" tgt="map" draggable="true" ondragstart="drag(event)">*</div>
+        </div>
+        <div class="tile">
+            <div id="c5" class="tile draggable duplicable" s="%" tgt="map" draggable="true" ondragstart="drag(event)">%</div>
+        </div>
+        <div class="tile">
+            <div id="c6" class="tile draggable duplicable" s="@" tgt="map" draggable="true" ondragstart="drag(event)">@</div>
+        </div>
+        <div class="tile">
+            <div id="c7" class="tile draggable duplicable" s="$" tgt="map" draggable="true" ondragstart="drag(event)">$</div>
+        </div>
+        <div class="tile">
+            <div id="c8" class="tile draggable duplicable" s="5" tgt="map" draggable="true" ondragstart="drag(event)">5</div>
+        </div>
+        <div class="tile">
+            <div id="c9" class="tile draggable duplicable" s="P" tgt="map" draggable="true" ondragstart="drag(event)">P</div>
+        </div>
+        <div class="tile">
+            <div id="goomba" class="tile draggable duplicable" s="+" tgt="map" draggable="true" ondragstart="drag(event)">+</div>
+        </div>
+    </div>    
+    <div class="tiles">
+        <div class="container"></div>
+    </div>    
+</div>
+
+</body>
+</html>

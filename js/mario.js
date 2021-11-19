@@ -231,12 +231,12 @@ scene("main", ({extraLives, initialScore}) => {
 			{coins: 1, emptyFrame:52}
 		]},
 		"5": function() { return [
-			sprite("tiles",{frame:48}),
+			sprite("tiles",{frame:81}),
 			area(),
 			solid(),
 			origin("bot"),
 			"coiner",
-			{coins: 5, emptyFrame:49}
+			{coins: 5, emptyFrame:50}
 		]},
 		"+": function() { return [
 			sprite("goomba"),
@@ -423,7 +423,7 @@ scene("main", ({extraLives, initialScore}) => {
 				setTimeout(function(){destroy(obj)},200)
 			}
 		}
-		if (obj.is("coiner") && obj.frame==48) {
+		if (obj.is("coiner") && obj.frame!=obj.emptyFrame) {
 			play("coin")
 			obj.coins--;
 			score.value++;

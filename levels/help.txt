@@ -1,7 +1,7 @@
 
 X floor
-# brick crash
-= brick floor
+# brick floor
+= brick crash
 * box 1 coin
 5 box 5 coins
 % box mushroom
