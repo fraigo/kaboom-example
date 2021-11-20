@@ -1,9 +1,11 @@
-
+M start position
 X floor
+x steel block
 # brick floor
 = brick crash
+s brick star
 * box 1 coin
-5 box 5 coins
+S box 5 coins
 % box mushroom
 + goomba
 $ coin
