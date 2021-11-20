@@ -98,7 +98,7 @@ body{
 .tile[s='%']{
     background-position: -170px 0, -1px -102px;
 }
-.tile[s='5']{
+.tile[s='S']{
     background-position: 0 -68px, -34px -170px;
 }
 .tile[s='@']{
@@ -119,8 +119,8 @@ body{
 .tile[s=']']{
     background-position: -238px -102px, -204px 0;
 }
-.tile[s='S']{
-    background-position: -102px -34px, -204px 0;
+.tile[s='s']{
+    background-position: -102px -34px, -34px -170px;
 }
 .tile[s='P']{
     background-position: -136px 0, -1px -102px;
@@ -459,7 +459,7 @@ function copyTextToClipboard(text) {
                 <div id="c4" class="tile draggable duplicable" s="*" tgt="map" draggable="true" ondragstart="drag(event)">*</div>
             </div>
             <div class="tile">
-                <div id="c8" class="tile draggable duplicable" s="5" tgt="map" draggable="true" ondragstart="drag(event)">5</div>
+                <div id="c8" class="tile draggable duplicable" s="S" tgt="map" draggable="true" ondragstart="drag(event)">S</div>
             </div>
             <div class="tile">
                 <div id="c5" class="tile draggable duplicable" s="%" tgt="map" draggable="true" ondragstart="drag(event)">%</div>
@@ -488,6 +488,9 @@ function copyTextToClipboard(text) {
 
             <div class="tile">
                 <div id="ctr" class="tile draggable duplicable" s="^" tgt="map" draggable="true" ondragstart="drag(event)">^</div>
+            </div>
+            <div class="tile">
+                <div id="str" class="tile draggable duplicable" s="s" tgt="map" draggable="true" ondragstart="drag(event)">s</div>
             </div>
             <div class="tile">
                 <div id="c11" class="tile draggable duplicable" s="." tgt="map" draggable="true" ondragstart="drag(event)">.</div>

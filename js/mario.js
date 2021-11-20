@@ -245,7 +245,7 @@ scene("main", ({extraLives, initialScore}) => {
 			"coiner",
 			{coins: 1, emptyFrame:52}
 		]},
-		"5": function() { return [
+		"S": function() { return [
 			sprite("tiles",{frame:81}),
 			area(),
 			solid(),
@@ -279,6 +279,23 @@ scene("main", ({extraLives, initialScore}) => {
 			solid(),
 			origin("bot"),
 			"extralive",
+		]},
+		"s": function() { return [
+			sprite("tiles",{frame:81}),
+			area(),
+			solid(),
+			origin("bot"),
+			"popstar",
+		]},
+		"t": function() { return [
+			sprite("tiles",{frame:16}),
+			area(),
+			body(),
+			origin("bot"),
+			"flip",
+			"block",
+			"star",
+			{moving: true, moveDirection:1, animFrames:10, animFrame:16}
 		]},
 		"(": function() { return [
 			sprite("tiles",{frame:6}),
@@ -404,8 +421,12 @@ scene("main", ({extraLives, initialScore}) => {
 	});
 
 	// if player collides with any obj with "dangerous" tag, lose
-	player.collides("dangerous", () => {
+	onCollide("player","dangerous", (p, d) => {
 		go("lose", { score: score.value, lives: lives.value });
+	});
+	onCollide("player","star", (p, s) => {
+		p.star=400
+		destroy(s);
 	});
 
 	// grow an mushroom if player's head bumps into an obj with "prize" tag
@@ -423,6 +444,11 @@ scene("main", ({extraLives, initialScore}) => {
 			play("powerup0")
 			obj.frame=52;
 			level.spawn("p", obj.gridPos.sub(0, 1));
+		}
+		if (obj.is("popstar") && obj.frame==81) {
+			play("powerup0")
+			obj.frame=52;
+			level.spawn("t", obj.gridPos.sub(0, 1));
 		}
 		if (obj.is("brick")) {
 			if (player.size==1){
@@ -491,6 +517,14 @@ scene("main", ({extraLives, initialScore}) => {
 		}
 	})
 	action("player", function(p){
+		if (p.star){
+			p.star--
+			console.log('p',p.star)
+			var op = p.star%9
+			p.opacity=1-(op/10)
+		} else {
+			p.opacity=1
+		}
 		if (!p.curAnim() && p.grounded()){
 			p.frame=0
 		}
@@ -508,6 +542,19 @@ scene("main", ({extraLives, initialScore}) => {
 				go("winlevel", { score: score.value, lives: lives.value });
 			}
 		}
+	})
+	action("star", function(p){
+		if (p.grounded()){
+			p.jump(JUMP_FORCE*0.75);
+		}
+		p.animFrame+=(1/p.animFrames);
+		p.frame=Math.floor(p.animFrame);
+		console.log(p.frame)
+		if (p.frame>=20){
+			p.animFrame=16;
+			p.frame=16;
+		}
+		p.moveBy(p.moveDirection,0)
 	})
 	action("goomba", function(g){
 		var diffx=Math.abs(player.pos.x-g.pos.x);

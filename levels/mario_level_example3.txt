@@ -1,4 +1,4 @@
-x    5 5    x
+x    S S    x
 x           x
 xx*xxxxxxxx x
 x           x
