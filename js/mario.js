@@ -549,18 +549,27 @@ scene("main", ({extraLives, initialScore}) => {
 	});
 	onCollide("player", "pipetop", (p1, p2) => {
 		var diffy = p1.pos.y - p2.pos.y
+		var diffx = p1.pos.x - p2.pos.x
 		if (diffy<-16 && player.crouch){
-			console.log('enter')
-			p2.area.scale.y=0.90
+			//fix player position right`
+			if (diffx<0 && p2.frame==38) {
+				p1.pos.x = p2.pos.x + 3
+			}
+			//fix player position left
+			if (diffx>1 && p2.frame==39) {
+				p1.pos.x = p2.pos.x -3
+			}
+			console.log('enter', diffx, p2)
+			player.area.offset.y=-0.5
 			player.z=-1
 			var proc=0
 			p1.movable=false
 			proc=setInterval(function(){
-				p2.area.scale.y-=0.1
-				if (p2.area.scale.y<=0){
+				p1.area.offset.y-=0.5
+				if (p1.area.offset.y<=-34){
 					if (!p1.movable){
 						p1.movable=true
-						p2.area.scale.y=1;
+						p1.area.offset.y=0;
 						clearInterval(proc)
 						go("main", {extraLives: lives.value, initialScore: score.value})	
 					}
