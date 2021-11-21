@@ -1,9 +1,10 @@
-                                          
-                                          
-                                          
-             $$  $$$                      
-             $ $ $                        
-   %     \/  $$  $$$                      
-         []  $ $ $                        
-         []  $$  $$$                      
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+                                            
+                                   .        
+               $$  $$$ $  $       <|        
+       s       $ $ $   $$ $        |        
+x   %      \/  $$  $$$ $ $$    x   |        
+x M        []  $ $ $   $  $   x    |        
+x          []  $$  $$$ $  $  x     x        
+ XXXXXXXXXXXXX    +   +  +  XXXXXXXX        
+              XXXXXXXXXXXXXXX
