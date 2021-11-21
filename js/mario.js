@@ -125,6 +125,7 @@ loadSound("die", "sounds/smb_mariodie.wav");
 loadSound("stage", "sounds/stage_clear.wav");
 loadSound("1up", "sounds/1up.wav");
 loadSound("star", "sounds/star.wav");
+loadSound("pole", "sounds/pole.wav");
 
 scene("main", ({ extraLives, initialScore }) => {
 
@@ -331,6 +332,7 @@ scene("main", ({ extraLives, initialScore }) => {
 				sprite("goomba"),
 				area({ width: 12, height: 16, offset: { x: -1, y: 0 } }),
 				body(),
+				solid(),
 				origin("bot"),
 				"goomba",
 				"flip",
@@ -586,7 +588,7 @@ scene("main", ({ extraLives, initialScore }) => {
 			p.star--
 			var op = 1
 			if (p.star<100){
-				op = p.star % 9
+				op = p.star % 10
 			} else {
 				op = p.star % 5
 			}
@@ -611,6 +613,7 @@ scene("main", ({ extraLives, initialScore }) => {
 			if (p.pos.y+p.area.offset.y == basepole) {
 				p.flagDown = true
 				setTimeout(function () {
+					player.starMusic.pause()
 					go("winlevel", { score: score.value, lives: lives.value });
 				},1000)
 			}
@@ -663,6 +666,7 @@ scene("main", ({ extraLives, initialScore }) => {
 		player.movable = false
 		player.jump(0)
 		player.weight=0.2
+		play("pole")
 		player.play("pole" + player.size)
 	});
 	onCollide("player", "mushroom", (p, m) => {
