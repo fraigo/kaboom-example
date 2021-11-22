@@ -1,7 +1,11 @@
+GAMEWIDTH=360
+GAMEHEIGHT=360
+LEVELWIDTH=1
+
 window.kb = kaboom({
 	global: true,
-	width: 360,
-	height: 360,
+	width: GAMEWIDTH,
+	height: GAMEHEIGHT,
 	scale: 2,
 	background: [92, 148, 252,],
 	fps: 12,
@@ -143,6 +147,10 @@ scene("main", ({ extraLives, initialScore }) => {
 
 	// add level to scene
 	var map = levelMap.split('\n')
+	LEVELWIDTH = 1
+	for(var idx in map){
+		LEVELWIDTH = Math.max(LEVELWIDTH, map[idx].length)
+	}
 	const level = addLevel(map, {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
@@ -556,6 +564,10 @@ scene("main", ({ extraLives, initialScore }) => {
 		player.pos.y = s.pos.y
 		destroy(s)
 	})
+	action("block", function (b) {
+		// TODO: Optimize far objects
+		// b.solid = player.pos.dist(b.pos) < 360; // arbitrary distance based on you tile size
+	})
 	action("mushroom", function (p) {
 		p.move(p.moveDirection * 50, 0)
 		p.flipping = false
@@ -577,9 +589,13 @@ scene("main", ({ extraLives, initialScore }) => {
 			destroy(p)
 		}
 	})
-	action("player", function (p) {
+	player.action(function (p) {
 		// center camera to player
-		camPos(p.pos);
+		if (p.pos.x>172 || LEVELWIDTH<24){
+			camPos(p.pos);
+		} else {
+			camPos({x:172,y:p.pos.y})
+		}
 		// check fall death
 		if (p.pos.y >= FALL_DEATH) {
 			go("lose", { score: score.value, lives: lives.value });
@@ -613,7 +629,9 @@ scene("main", ({ extraLives, initialScore }) => {
 			if (p.pos.y+p.area.offset.y == basepole) {
 				p.flagDown = true
 				setTimeout(function () {
-					player.starMusic.pause()
+					if (p.starMusic){
+						player.starMusic.pause()
+					}
 					go("winlevel", { score: score.value, lives: lives.value });
 				},1000)
 			}
