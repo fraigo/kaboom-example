@@ -9,7 +9,7 @@ window.kb = kaboom({
 	scale: 2,
 	background: [92, 148, 252,],
 	fps: 12,
-	plugins: [peditPlugin, asepritePlugin, kbmspritePlugin]
+	plugins: []
 });
 
 // load assets
@@ -29,7 +29,7 @@ loadSprite("tiles", "images/mario.png", {
 	},
 });
 loadSprite("player1", "images/mario1.png", {
-	sliceX: 7,
+	sliceX: 8,
 	sliceY: 6,
 	anims: {
 		move1: {
@@ -53,51 +53,78 @@ loadSprite("player1", "images/mario1.png", {
 			to: 12
 		},
 		move2: {
-			from: 14,
-			to: 17,
+			from: 16,
+			to: 19,
 		},
 		idle2: {
-			from: 14,
-			to: 14,
+			from: 16,
+			to: 16,
 		},
 		crouch2: {
-			from: 20,
-			to: 20,
+			from: 23,
+			to: 23,
 		},
 		jump2:{
-			from: 19,
-			to: 19
+			from: 22,
+			to: 22
 		},
 		pole2:{
-			from: 26,
-			to: 26
+			from: 28,
+			to: 28
 		},
 		move3: {
-			from: 28,
-			to: 31,
+			from: 32,
+			to: 35,
 		},
 		idle3: {
-			from: 28,
-			to: 28,
+			from: 32,
+			to: 32,
 		},
 		jump3:{
-			from: 33,
-			to: 33
+			from: 38,
+			to: 38
 		},
 		pole3:{
-			from: 40,
-			to: 40
+			from: 44,
+			to: 44
 		},
 		crouch3: {
-			from: 34,
-			to: 34,
+			from: 39,
+			to: 39,
 		},
 		death: {
-			from: 6,
-			to: 6
+			from: 7,
+			to: 7
 		}
 	},
 });
+
+loadSprite("troopa", "images/troopa.png", {
+	sliceX: 6,
+	sliceY: 3,
+	anims: {
+		move: {
+			from: 0,
+			to: 1
+		},
+		fixed: {
+			from: 5,
+			to: 5
+		},
+		slide: {
+			from: 5,
+			to: 5
+		},
+		fly: {
+			from: 2,
+			to: 3
+		},
+		die: {
+			from: 1,
+			to: 1
+		}
+	}
+})
 
 loadSprite("goomba", "images/goomba.png", {
 	sliceX: 3,
@@ -151,7 +178,7 @@ scene("main", ({ extraLives, initialScore }) => {
 	for(var idx in map){
 		LEVELWIDTH = Math.max(LEVELWIDTH, map[idx].length)
 	}
-	const level = addLevel(map, {
+	const levelOptions = {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
 		width: 17,
@@ -176,7 +203,8 @@ scene("main", ({ extraLives, initialScore }) => {
 				"block"
 			]
 		},
-		"#": function () {
+		"#": function (opt) {
+			console.log('#',opt)
 			return [
 				sprite("tiles", { frame: 81 }),
 				area(),
@@ -332,7 +360,7 @@ scene("main", ({ extraLives, initialScore }) => {
 				solid(),
 				origin("bot"),
 				"coiner",
-				{ coins: 5, emptyFrame: 50 }
+				{ coins: 5, emptyFrame: 51 }
 			]
 		},
 		"+": function () {
@@ -346,6 +374,19 @@ scene("main", ({ extraLives, initialScore }) => {
 				"flip",
 				"block",
 				{ moving: false, moveDirection: -1 }
+			]
+		},
+		"n": function () {
+			return [
+				sprite("troopa"),
+				area({ width: 16, height: 22, offset: { x: -1, y: 0 } }),
+				body(),
+				solid(),
+				origin("bot"),
+				"troopa",
+				"flip",
+				"block",
+				{ moving: false, moveDirection: -1, mode:"move" }
 			]
 		},
 		"@": function () {
@@ -424,7 +465,8 @@ scene("main", ({ extraLives, initialScore }) => {
 				{ moveDirection: 1 }
 			]
 		},
-	});
+	}
+	const level = addLevel(map, levelOptions);
 
 	// add score counter obj
 	const score = add([
@@ -473,20 +515,30 @@ scene("main", ({ extraLives, initialScore }) => {
 	]);
 	window.player = player1;
 
-	function showPlayer(size) {
-		player.size = size
-		if (size==1){
+	function playerArea(player){
+		if (player.size==1){
 			player.area.width=11
 			player.area.height=16
 			player.area.offset.x=0
 			player.area.offset.y=-2
 		}
-		if (size==2 || size==3){
+		else if (player.crouch){
+			player.area.width=15
+			player.area.height=18
+			player.area.offset.x=0
+			player.area.offset.y=-1
+		}
+		else {
 			player.area.width=12
-			player.area.height=32
+			player.area.height=30
 			player.area.offset.x=0
 			player.area.offset.y=-2
 		}
+	}
+
+	function showPlayer(size) {
+		player.size = size
+		playerArea(player)
 	}
 
 	onCollide("player", "star", (p, s) => {
@@ -550,9 +602,9 @@ scene("main", ({ extraLives, initialScore }) => {
 			if (obj.coins == 0) {
 				obj.frame = obj.emptyFrame;
 				return
-			}
+			}	
 		}
-		if (obj.frame == 49) {
+		if (obj.frame == 52) {
 			play("bump")
 		}
 	}
@@ -564,9 +616,45 @@ scene("main", ({ extraLives, initialScore }) => {
 		player.pos.y = s.pos.y
 		destroy(s)
 	})
+	window.paused=[]
+	setInterval(function (b){
+		for (var idx = paused.length -1; idx>=0; idx--){
+			var pos = paused[idx].screenPos()
+			if (pos.x>GAMEWIDTH*2 || pos.x<-GAMEWIDTH){
+			} else {
+				paused[idx].paused = false
+				paused.splice(idx, 1)
+			}	
+		}
+	},500)
 	action("block", function (b) {
 		// TODO: Optimize far objects
-		// b.solid = player.pos.dist(b.pos) < 360; // arbitrary distance based on you tile size
+		var pos = b.screenPos()
+		if (pos.x>GAMEWIDTH*1.5 || pos.x<-GAMEWIDTH*0.5){
+			b.paused = true
+			paused.push(b)
+		}
+		else{
+			b.paused = false
+		}
+	//b.solid = player.pos.dist(b.pos) < 360; // arbitrary distance based on you tile size
+	})
+	action("coiner", function(c){
+		if (c.frame==48 && !c.timer) {
+			c.frame=49
+			c.timer=10
+		}
+		else if (c.frame==49 && !c.timer) {
+			c.frame=50
+			c.timer=10
+		}
+		else if (c.frame==50 && !c.timer) {
+			c.frame=48
+			c.timer=10
+		}
+		if (c.timer){
+			c.timer--
+		}
 	})
 	action("mushroom", function (p) {
 		p.move(p.moveDirection * 50, 0)
@@ -652,19 +740,38 @@ scene("main", ({ extraLives, initialScore }) => {
 		p.moveBy(p.moveDirection, 0)
 	})
 	action("goomba", function (g) {
-		var diffx = Math.abs(player.pos.x - g.pos.x);
-		if (diffx < 200 || g.moving) {
+		var pos = g.screenPos()
+		if (pos.x<=GAMEWIDTH) {
+			goomba=g
 			g.moveBy(g.moveDirection, 0)
-			g.moving = true
-			g.flipping = false
-		}
-		var t = Math.round(time() * 10)
-		g.frame = (t) % 2;
-		if (g.timer) {
-			g.timer--;
-			if (g.timer == 0) {
-				destroy(g)
+			if (g.curAnim()!='move'){
+				g.play("move")
+				g.moving = true
+				g.flipping = false
 			}
+		}
+		if (g.pos.y >= FALL_DEATH) {
+			destroy(g)
+		}
+	})
+	action("troopa", function (g) {
+		var pos = g.screenPos()
+		var vel = {
+			'slide' : 2.5,
+			'move' : 1.0,
+			'fixed' : 0
+		}
+		if (pos.x<=GAMEWIDTH) {
+			var factor = vel[g.mode]
+			g.moveBy(g.moveDirection*factor, 0)
+			if (g.curAnim()!=g.mode){
+				g.play(g.mode)
+				g.moving = true
+				g.flipping = false
+			}
+		}
+		if (g.timer){
+			g.timer--
 		}
 		if (g.pos.y >= FALL_DEATH) {
 			destroy(g)
@@ -673,10 +780,14 @@ scene("main", ({ extraLives, initialScore }) => {
 
 	onCollide("flip", "block", (go, bl) => {
 		if (bl.pos.y <= go.pos.y && !go.flipping) {
-			go.moveDirection *= -1
-			go.moveBy(go.moveDirection * 2, 0)
-			go.flipX(go.moveDirection > 0)
-			go.flipping = true
+			clearTimeout(go.flipProc)
+			go.flipping = true	
+			go.flipProc = setTimeout(function(){
+				go.moveDirection *= -1
+				go.moveBy(go.moveDirection * 2, 0)
+				go.flipX(go.moveDirection > 0)
+				go.flipping = false
+			},50)
 		}
 	})
 	onCollide("player", "polebottom", (p, m) => {
@@ -726,7 +837,11 @@ scene("main", ({ extraLives, initialScore }) => {
 	onCollide("player", "flower", (p, m) => {
 		destroy(m);
 		play("powerup1")
-		showPlayer(3)
+		if (player.size==2){
+			showPlayer(3)
+		} else {
+			showPlayer(2)
+		}
 	});
 	onCollide("player", "live", (p, m) => {
 		if (m.hidden) return;
@@ -753,10 +868,16 @@ scene("main", ({ extraLives, initialScore }) => {
 		g.z = 2
 		if (diffy < 0) {
 			g.timer = 12
+			g.solid = false
+			g.moveBy(0,5)
 			play("stomp")
 			setTimeout(function () {
 				p.jump(JUMP_FORCE/2)
+				g.play("die")
 			}, 20)
+			setTimeout(function () {
+				destroy(g)
+			}, 100)
 			return
 		}
 		if (!g.timer && p.star) {
@@ -787,6 +908,69 @@ scene("main", ({ extraLives, initialScore }) => {
 			}
 		}
 	});
+
+	onCollide("player", "troopa", (p, g) => {
+		var diffy = p.pos.y - g.pos.y
+		if (diffy < 0 && !g.timer && p.falling()) {
+			play("stomp")
+			if (g.curAnim()=="slide" ) {
+				g.timer = 12
+				g.solid = false
+				g.moveBy(0,5)
+				setTimeout(function () {
+					p.jump(JUMP_FORCE/2)
+					g.play("die")
+				}, 20)
+				setTimeout(function () {
+					destroy(g)
+				}, 100)	
+			} else if (g.curAnim()=="move"){
+				setTimeout(function () {
+					p.jump(JUMP_FORCE/2)
+				}, 20)
+				g.timer = 12
+				g.mode="fixed"
+			} 
+			return
+		}
+		if (!g.timer && p.star) {
+			g.timer = 12
+			play("stomp")
+			return
+		}
+		if (g.removed){
+			return
+		}
+		if (g.curAnim()=="fixed"){
+			setTimeout(function () {
+				p.jump(JUMP_FORCE/2)
+			}, 20)
+			g.timer = 12
+			g.mode="slide"
+		}
+		else if (!g.timer) {
+			console.log('t',diffy, g.timer,g.curAnim(),p.falling(),g.removed)
+			g.removed=true
+			if (!p.star) {
+				if (p.size >= 2) {
+					play("pipe")
+					showPlayer(1)
+					g.removed=false
+					g.timer = 20
+				} else {
+					destroy(g);
+					play("die")
+					player.play("death")
+					player.moveBy(g.moveDirection * 10, 0)
+					player.jump(JUMP_FORCE / 3)
+					player.solid = false
+					setTimeout(function () {
+						go("lose", { score: score.value, lives: lives.value });
+					}, 500)
+				}
+			}
+		}
+	});	
 
 	onCollide("player", "jumpy", (p, j) => {
 		console.log('jumpy')
@@ -859,13 +1043,17 @@ scene("main", ({ extraLives, initialScore }) => {
 			return
 		}
 		if (player.grounded()) {
-			console.log('crouch')
 			player.play("crouch"+player.size);
-			player.moveBy(0, -2);
-			player.crouch = true;
+			if (!player.crouch){
+				player.moveBy(0, -2);
+				player.crouch = true;	
+			}
+			playerArea(player);
 			clearTimeout(player.downProc)
 			player.downProc=setTimeout(function () {
+				console.log('uncrouch')
 				player.crouch = false;
+				playerArea(player);
 			}, 200)
 		}
 	});
