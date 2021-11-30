@@ -181,8 +181,8 @@ scene("main", ({ extraLives, initialScore }) => {
 	const levelOptions = {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
-		width: 17,
-		height: 17,
+		width: 16,
+		height: 16,
 		// define each object as a list of components
 		"M": function () {
 			return [
@@ -321,6 +321,7 @@ scene("main", ({ extraLives, initialScore }) => {
 				area(),
 				origin("bot"),
 				"flower",
+				"popup"
 			]
 		},
 		"^": function () {
@@ -374,7 +375,7 @@ scene("main", ({ extraLives, initialScore }) => {
 		"+": function () {
 			return [
 				sprite("goomba"),
-				area({ width: 12, height: 16, offset: { x: -1, y: 0 } }),
+				area({ width: 12, height: 15, offset: { x: -1, y: -1 } }),
 				body(),
 				solid(),
 				origin("bot"),
@@ -387,7 +388,7 @@ scene("main", ({ extraLives, initialScore }) => {
 		"n": function () {
 			return [
 				sprite("troopa"),
-				area({ width: 16, height: 22, offset: { x: -1, y: 0 } }),
+				area({ width: 16, height: 22, offset: { x: -1, y: -1 } }),
 				body(),
 				solid(),
 				origin("bot"),
@@ -400,12 +401,13 @@ scene("main", ({ extraLives, initialScore }) => {
 		"@": function () {
 			return [
 				sprite("tiles", { frame: 5 }),
-				area(),
+				area({width:16,height:16,offset:{x:0, y:-1}}),
 				body(),
 				origin("bot"),
 				"flip",
 				"block",
 				"mushroom",
+				"popup",
 				{ moveDirection: 1 }
 			]
 		},
@@ -469,6 +471,7 @@ scene("main", ({ extraLives, initialScore }) => {
 				origin("bot"),
 				"flip",
 				"block",
+				"popup",
 				"live",
 				{ moveDirection: 1 }
 			]
@@ -565,9 +568,19 @@ scene("main", ({ extraLives, initialScore }) => {
 			play("powerup0")
 			obj.frame = 52;
 			if (player.size == 1) {
-				level.spawn("@", obj.gridPos.sub(0, 1));
+				var g = level.spawn("@", obj.gridPos.sub(0, 0));
+				g.solid = false
+				g.weight=0
+				g.z=-1
+				g.moveDirection = 0
+				g.timer = 32
 			} else {
-				level.spawn("T", obj.gridPos.sub(0, 1));
+				var f = level.spawn("T", obj.gridPos.sub(0, 0));
+				f.solid = false
+				f.weight=0
+				f.z=-1
+				f.moveDirection = 0
+				f.timer = 16
 			}
 		}
 		if (obj.is("extralive") && obj.frame == 6) {
@@ -705,16 +718,30 @@ scene("main", ({ extraLives, initialScore }) => {
 			c.timer--
 		}
 	})
+	action("popup", function (p) {
+		if (p.timer){
+			console.log('popup')
+			p.flipping = true
+			p.moveBy(0,-1)
+			p.timer--
+			if (p.timer==0){
+				p.flipping = false
+				p.solid=true
+				p.weight=1
+				p.moveDirection=1
+			} else {
+				return
+			}
+		}
+	})
 	action("mushroom", function (p) {
 		p.move(p.moveDirection * 50, 0)
-		p.flipping = false
 		if (p.pos.y >= FALL_DEATH) {
 			destroy(p)
 		}
 	})
 	action("live", function (p) {
 		p.move(p.moveDirection * 50, 0)
-		p.flipping = false
 		if (p.pos.y >= FALL_DEATH) {
 			destroy(p)
 		}
@@ -827,16 +854,16 @@ scene("main", ({ extraLives, initialScore }) => {
 		}
 	})
 
-	onCollide("flip", "block", (go, bl) => {
-		if (bl.pos.y <= go.pos.y && !go.flipping) {
+	onCollide("flip", "block", (go, bl, col) => {
+		if (col && (col.isLeft()||col.isRight()) && !go.flipping) {
 			clearTimeout(go.flipProc)
-			go.flipping = true	
+			go.flipping = true
 			go.flipProc = setTimeout(function(){
 				go.moveDirection *= -1
 				go.moveBy(go.moveDirection * 2, 0)
 				go.flipX(go.moveDirection > 0)
 				go.flipping = false
-			},50)
+			},100)
 		}
 	})
 	onCollide("player", "polebottom", (p, m) => {
@@ -886,7 +913,8 @@ scene("main", ({ extraLives, initialScore }) => {
 	onCollide("player", "flower", (p, m) => {
 		destroy(m);
 		play("powerup1")
-		if (player.size==2){
+		console.log('flower', p.size)
+		if (p.size>=2){
 			showPlayer(3)
 		} else {
 			showPlayer(2)
