@@ -138,6 +138,11 @@ body{
 .tile[s='<']{
     background-position: -272px -68px, -204px 0;
 }
+.tile[s='n']{
+    background-image: url(../images/troopa.png);
+    background-size: 192px;
+    background-position: 0px 0px;
+}
 .tile[s='+']{
     background-image: url(../images/goomba.png);
     background-size: 102px 34px;
@@ -505,6 +510,11 @@ function copyTextToClipboard(text) {
             </div>
             <div class="tile">
                 <div id="c12" class="tile draggable duplicable" s="|" tgt="map" draggable="true" ondragstart="drag(event)">|</div>
+            </div>
+            <div class="tile">
+            </div>
+            <div class="tile">
+                <div id="troopa" class="tile draggable duplicable" s="n" tgt="map" draggable="true" ondragstart="drag(event)">n</div>
             </div>
             <div class="tile">
                 <div id="goomba" class="tile draggable duplicable" s="+" tgt="map" draggable="true" ondragstart="drag(event)">+</div>
