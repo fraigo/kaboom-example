@@ -204,7 +204,6 @@ scene("main", ({ extraLives, initialScore }) => {
 			]
 		},
 		"#": function (opt) {
-			console.log('#',opt)
 			return [
 				sprite("tiles", { frame: 81 }),
 				area(),
@@ -212,6 +211,15 @@ scene("main", ({ extraLives, initialScore }) => {
 				origin("bot"),
 				"brick",
 				"block"
+			]
+		},
+		"~": function (opt) {
+			return [
+				sprite("tiles", { frame: 83 }),
+				origin("bot"),
+				area({width: 8, height: 8, offset:{x:0, y:-4}}),
+				body(),
+				"explode"
 			]
 		},
 		"X": function () {
@@ -580,9 +588,35 @@ scene("main", ({ extraLives, initialScore }) => {
 					obj.pos.y += 6;
 				}, 120)
 			} else {
-				obj.frame = 83
 				obj.pos.y -= 10;
+				obj.solid = false;
+				destroy(obj);
 				play("brick")
+				var o1 = null
+				o1 = level.spawn("~", obj.gridPos.sub(0, 0));
+				o1.moveX = 1
+				o1.moveY = -3
+				o1.moveBy(8,8)
+				o1.timer = 12
+				o1.solid = false
+				o1 = level.spawn("~", obj.gridPos.sub(0, 0));
+				o1.moveX = 1
+				o1.moveY = -4
+				o1.moveBy(12,12)
+				o1.timer = 12
+				o1.solid = false
+				o1 = level.spawn("~", obj.gridPos.sub(0, 0));
+				o1.moveX = -1
+				o1.moveY = -3
+				o1.timer = 12
+				o1.moveBy(-8,8)
+				o1.solid = false
+				o1 = level.spawn("~", obj.gridPos.sub(0, 0));
+				o1.moveX = -1
+				o1.moveY = -4
+				o1.timer = 12
+				o1.moveBy(-12,12)
+				o1.solid = false
 				setTimeout(function () { destroy(obj) }, 200)
 			}
 		}
@@ -627,6 +661,21 @@ scene("main", ({ extraLives, initialScore }) => {
 			}	
 		}
 	},500)
+	action("explode", function (s) {
+		if (timer==12){
+			console.log('jump')
+			s.jump(JUMP_FORCE*2)
+			s.solid = false
+		} else {
+			s.moveBy(s.moveX,s.moveY)
+		}
+		if (timer){
+			s.timer--
+		}
+		if (s.timer==0){
+			destroy(s)
+		}
+	})
 	action("block", function (b) {
 		// TODO: Optimize far objects
 		var pos = b.screenPos()
