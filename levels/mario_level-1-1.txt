@@ -4,9 +4,9 @@
                                                                            ########   ###*             %           ###   #**#                                                        xx        |                  
                                                                                                                                                                                     xxx        |                  
                *                                                                                                                                                                   xxxx        |                  
-                                                   11      P                                                                                                                      xxxxx        |                  
+                                                   00      P                                                                                                                      xxxxx        |                  
                                          !i        \/                   #%#              S    Ss    *  *  *     #         ##      x  x          xx  x            ##*#            xxxxxx        |                  
-  M     *    #%#*#               !i      []        []                                                                            xx  xx        xxx  xx                          xxxxxxx        |                  
+  M     *    #%#*#               !i      []        []                                                                            xx  xx        xxx  xx      33                  xxxxxxx        |                  
                        !i        []      []        []                                                                           xxx  xxx      xxxx  xxx     !i              !i xxxxxxxx        |                  
 (                     +[]        []     +[]      ++[]                                       ++        n     ++        ++ ++    xxxx  xxxx    xxxxx  xxxx    []         ++   []xxxxxxxxx        o                  
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXX   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -31,7 +31,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXX
          x                x
          x                x
          x    $$$$$       x
-         x    =====   00  x
-         x 2          \/  x
+         x 1  =====   22  x
+         x            \/  x
          x    $$$$$   []  x
          xxxxxxxxxxxxxxxxxx
