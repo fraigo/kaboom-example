@@ -178,6 +178,15 @@ scene("main", ({ extraLives, initialScore, currentPlayer }) => {
 	for(var idx in map){
 		LEVELWIDTH = Math.max(LEVELWIDTH, map[idx].length)
 	}
+	const transportOpts = function (current) {
+		return [
+			sprite("tiles", { frame: 6 }),
+			area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
+			origin("bot"),
+			"transport",
+			{ current: current }
+		]
+	}
 	const levelOptions = {
 		// TODO: derive grid size from sprite size instead of hardcode
 		// grid size
@@ -502,33 +511,13 @@ scene("main", ({ extraLives, initialScore, currentPlayer }) => {
 				{ moveDirection: 1 }
 			]
 		},
-		"0": function () {
-			return [
-				sprite("tiles", { frame: 6 }),
-				area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
-				origin("bot"),
-				"transport",
-				{ current: 0 }
-			]
-		},
-		"1": function () {
-			return [
-				sprite("tiles", { frame: 6 }),
-				area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
-				origin("bot"),
-				"transport",
-				{ current: 1 }
-			]
-		},
-		"2": function () {
-			return [
-				sprite("tiles", { frame: 6 }),
-				area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
-				origin("bot"),
-				"transport",
-				{ current: 2 }
-			]
-		},
+		"0": function (){ return transportOpts(0) },
+		"1": function (){ return transportOpts(1) },
+		"2": function (){ return transportOpts(2) },
+		"3": function (){ return transportOpts(3) },
+		"4": function (){ return transportOpts(4) },
+		"5": function (){ return transportOpts(5) },
+		"6": function (){ return transportOpts(6) },
 	}
 	window.level = addLevel(map, levelOptions);
 	onUpdate(function(){
@@ -879,20 +868,11 @@ scene("main", ({ extraLives, initialScore, currentPlayer }) => {
 	})
 	basepole = 0
 	every("polebottom", function (p) {
-		basepole = Math.max(basepole, p.pos.y)
+		basepole = Math.max(basepole, p.pos.y)		
 	})
 	action("flag", function (p) {
 		if (player.flagPos && !p.flagDown) {
 			p.pos.y = player.pos.y
-			if (p.pos.y>=basepole){
-				p.flagDown = true
-				setTimeout(function () {
-					if (p.starMusic){
-						player.starMusic.pause()
-					}
-					go("winlevel", { score: score.value, lives: lives.value });
-				},1000)
-			}
 		}
 	})
 	action("star", function (p) {
@@ -969,19 +949,28 @@ scene("main", ({ extraLives, initialScore, currentPlayer }) => {
 		p.flagPos = true
 		player.movable = false
 		player.paused=true
+		player.moveTo(player.pos.x,player.pos.y)
 		player.falling=setInterval(function(){
-			player.pos.y+=1
+			player.pos.y+=2
 			if (player.pos.y>=basepole){
-				player.paused=false
 				clearInterval(player.falling)
+				player.paused=false
+			} else {
+				camPos({x:player.pos.x,y:player.pos.y});
 			}
 		},60)
 		play("pole")
 		player.play("pole" + player.size)
 	});
 	onCollide("player", "polebase", (p, m, col) => {
-		if (col) {
-			console.log('finish',col.isTop(),col.isBottom())
+		if (col && !p.flagDown && col.isBottom()) {
+			p.flagDown = true
+			setTimeout(function () {
+				if (p.starMusic){
+					player.starMusic.pause()
+				}
+				go("winlevel", { score: score.value, lives: lives.value });
+			},1000)
 		}
 	});
 	onCollide("player", "mushroom", (p, m) => {
