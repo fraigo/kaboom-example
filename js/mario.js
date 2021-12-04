@@ -158,7 +158,7 @@ loadSound("1up", "sounds/1up.wav");
 loadSound("star", "sounds/star.wav");
 loadSound("pole", "sounds/pole.wav");
 
-scene("main", ({ extraLives, initialScore }) => {
+scene("main", ({ extraLives, initialScore, currentPlayer }) => {
 
 	// define some constants
 	var JUMP_FORCE = 460;
@@ -242,6 +242,16 @@ scene("main", ({ extraLives, initialScore }) => {
 				"block"
 			]
 		},
+		"o": function () {
+			return [
+				sprite("tiles", { frame: 53 }),
+				area(),
+				solid(),
+				origin("bot"),
+				"polebase",
+				"block"
+			]
+		},
 		"[": function () {
 			return [
 				sprite("tiles", { frame: 54 }),
@@ -298,6 +308,14 @@ scene("main", ({ extraLives, initialScore }) => {
 				"pipetop"
 			]
 		},
+		"!": function () {
+			return [
+				sprite("tiles", { frame: 38 }),
+				area(),
+				solid(),
+				origin("bot"),
+			]
+		},
 		"/": function () {
 			return [
 				sprite("tiles", { frame: 39 }),
@@ -305,6 +323,14 @@ scene("main", ({ extraLives, initialScore }) => {
 				solid(),
 				origin("bot"),
 				"pipetop"
+			]
+		},
+		"i": function () {
+			return [
+				sprite("tiles", { frame: 39 }),
+				area(),
+				solid(),
+				origin("bot")
 			]
 		},
 		"$": function () {
@@ -476,8 +502,40 @@ scene("main", ({ extraLives, initialScore }) => {
 				{ moveDirection: 1 }
 			]
 		},
+		"0": function () {
+			return [
+				sprite("tiles", { frame: 6 }),
+				area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
+				origin("bot"),
+				"transport",
+				{ current: 0 }
+			]
+		},
+		"1": function () {
+			return [
+				sprite("tiles", { frame: 6 }),
+				area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
+				origin("bot"),
+				"transport",
+				{ current: 1 }
+			]
+		},
+		"2": function () {
+			return [
+				sprite("tiles", { frame: 6 }),
+				area({ width: 16, height: 16, offset: { x: 0, y: 0 } }),
+				origin("bot"),
+				"transport",
+				{ current: 2 }
+			]
+		},
 	}
-	const level = addLevel(map, levelOptions);
+	window.level = addLevel(map, levelOptions);
+	onUpdate(function(){
+		if (player.transporting) {
+			drawRect({width:GAMEWIDTH,height:GAMEHEIGHT,pos:vec2(0,0),color:kb.BLACK})
+		}
+	})
 
 	// add score counter obj
 	const score = add([
@@ -524,8 +582,15 @@ scene("main", ({ extraLives, initialScore }) => {
 		"player",
 		{ size: 1, jumpPower: JUMP_FORCE, movable: true }
 	]);
-	window.player = player1;
-
+	player1.paused=true
+	setTimeout(function () {
+		player1.paused=false
+	},2000)
+	console.log('current',currentPlayer)
+	if(currentPlayer){
+		player1.size=currentPlayer.size
+	}
+	window.player = player1;	
 	function playerArea(player){
 		if (player.size==1){
 			player.area.width=11
@@ -661,10 +726,14 @@ scene("main", ({ extraLives, initialScore }) => {
 		console.log('start', s.pos.x, s.pos.y)
 		player.pos.x = s.pos.x
 		player.pos.y = s.pos.y
+		setTimeout(function () {
+			player1.paused=false
+		},200)
 		destroy(s)
 	})
 	window.paused=[]
-	setInterval(function (b){
+	window.removed={}
+	window.restoreInterval=setInterval(function (b){
 		for (var idx = paused.length -1; idx>=0; idx--){
 			var pos = paused[idx].screenPos()
 			if (pos.x>GAMEWIDTH*2 || pos.x<-GAMEWIDTH){
@@ -673,7 +742,42 @@ scene("main", ({ extraLives, initialScore }) => {
 				paused.splice(idx, 1)
 			}	
 		}
+		var restored=0
+		var total=0
+		for (var idx in removed){
+			total++
+			var pos = removed[idx].screenPos()
+			if (pos.x>GAMEWIDTH*1.5 || pos.x<-GAMEWIDTH*0.5){
+			} else {
+				removed[idx]._id=idx;
+				removed[idx].paused=false;
+				removed[idx].solid=true;
+				delete removed[idx]
+				restored++
+			}	
+		}
+		// console.log('restored',restored,total)
 	},500)
+	window.transports = {}
+	every("transport", function(t){
+		if (!transports[t.current]) transports[t.current]=[]
+		t.pushed=true
+		t.index=transports[t.current].length
+		transports[t.current].push(t)	
+	})
+	action("block", function (b) {
+		var pos = b.screenPos()
+		if (pos.x>GAMEWIDTH*1.5 || pos.x<-GAMEWIDTH*0.5){
+			b.paused = true
+			b.solid = false
+			removed[b._id]=b
+			b._id=null
+		}
+		else{
+			b.paused = false
+		}
+	//b.solid = player.pos.dist(b.pos) < 360; // arbitrary distance based on you tile size
+	})
 	action("explode", function (s) {
 		if (timer==12){
 			console.log('jump')
@@ -688,18 +792,6 @@ scene("main", ({ extraLives, initialScore }) => {
 		if (s.timer==0){
 			destroy(s)
 		}
-	})
-	action("block", function (b) {
-		// TODO: Optimize far objects
-		var pos = b.screenPos()
-		if (pos.x>GAMEWIDTH*1.5 || pos.x<-GAMEWIDTH*0.5){
-			b.paused = true
-			paused.push(b)
-		}
-		else{
-			b.paused = false
-		}
-	//b.solid = player.pos.dist(b.pos) < 360; // arbitrary distance based on you tile size
 	})
 	action("coiner", function(c){
 		if (c.frame==48 && !c.timer) {
@@ -755,10 +847,12 @@ scene("main", ({ extraLives, initialScore }) => {
 	})
 	player.action(function (p) {
 		// center camera to player
-		if (p.pos.x>172 || LEVELWIDTH<24){
-			camPos(p.pos);
-		} else {
-			camPos({x:172,y:p.pos.y})
+		if (!p.transporting){
+			if (p.pos.x>172 || LEVELWIDTH<24){
+				camPos(p.pos);
+			} else {
+				camPos({x:172,y:p.pos.y})
+			}
 		}
 		// check fall death
 		if (p.pos.y >= FALL_DEATH) {
@@ -790,7 +884,7 @@ scene("main", ({ extraLives, initialScore }) => {
 	action("flag", function (p) {
 		if (player.flagPos && !p.flagDown) {
 			p.pos.y = player.pos.y
-			if (p.pos.y+p.area.offset.y == basepole) {
+			if (p.pos.y>=basepole){
 				p.flagDown = true
 				setTimeout(function () {
 					if (p.starMusic){
@@ -866,23 +960,38 @@ scene("main", ({ extraLives, initialScore }) => {
 			},100)
 		}
 	})
+	onCollide("player", "transport", function (p,t){
+		if (!transports[t.current+1]) return
+		if (t.active) return
+		window.nextPoint = transports[t.current+1][0]
+	})
 	onCollide("player", "polebottom", (p, m) => {
 		p.flagPos = true
 		player.movable = false
-		player.jump(0)
-		player.weight=0.2
+		player.paused=true
+		player.falling=setInterval(function(){
+			player.pos.y+=1
+			if (player.pos.y>=basepole){
+				player.paused=false
+				clearInterval(player.falling)
+			}
+		},60)
 		play("pole")
 		player.play("pole" + player.size)
+	});
+	onCollide("player", "polebase", (p, m, col) => {
+		if (col) {
+			console.log('finish',col.isTop(),col.isBottom())
+		}
 	});
 	onCollide("player", "mushroom", (p, m) => {
 		destroy(m);
 		play("powerup1")
 		showPlayer(2)
 	});
-	onCollide("player", "pipetop", (p1, p2) => {
-		var diffy = p1.pos.y - p2.pos.y
+	onCollide("player", "pipetop", (p1, p2, col) => {
 		var diffx = p1.pos.x - p2.pos.x
-		if (diffy < -16 && player.crouch) {
+		if (col && col.isBottom() && player.crouch) {
 			//fix player position right`
 			if (diffx < 0 && p2.frame == 38) {
 				p1.pos.x = p2.pos.x + 3
@@ -892,18 +1001,37 @@ scene("main", ({ extraLives, initialScore }) => {
 				p1.pos.x = p2.pos.x - 3
 			}
 			console.log('enter', diffx, p2)
-			player.area.offset.y = -0.5
+			player.paused=true
+			player.solid=false
 			player.z = -1
 			var proc = 0
 			p1.movable = false
+			p1.lastY = p1.pos.y
 			proc = setInterval(function () {
-				p1.area.offset.y -= 0.5
-				if (p1.area.offset.y <= -34) {
+				p1.pos.y += 2
+				if ((p1.pos.y-p1.lastY) > 34) {
 					if (!p1.movable) {
 						p1.movable = true
 						p1.area.offset.y = 0;
 						clearInterval(proc)
-						go("main", { extraLives: lives.value, initialScore: score.value })
+						// transport
+						nextPoint.active=true
+						p1.z=0
+						p1.solid=true
+
+						p1.transporting=true
+						setTimeout(function(){
+							p1.transporting=false
+							nextPoint.active=false
+						},500)
+						setTimeout(function(){
+							p1.paused=false
+						},1000)
+						p1.pos.x=nextPoint.pos.x
+						p1.pos.y=nextPoint.pos.y
+						camPos(p1.pos);
+						//
+						// go("main", { extraLives: lives.value, initialScore: score.value, currentPlayer: player })
 					}
 				}
 			}, 100)
@@ -1162,6 +1290,7 @@ scene("main", ({ extraLives, initialScore }) => {
 });
 
 scene("lose", ({ score, lives }) => {
+	clearInterval(window.restoreInterval)
 	lives--
 	if (lives >= 0) {
 		add([
@@ -1198,6 +1327,7 @@ scene("lose", ({ score, lives }) => {
 });
 
 scene("winlevel", ({ score, lives }) => {
+	clearInterval(window.restoreInterval)
 	play("stage")
 	add([
 		sprite("player1"),

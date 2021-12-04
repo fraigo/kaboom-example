@@ -4,10 +4,34 @@
                                                                            ########   ###*             %           ###   #**#                                                        xx        |                  
                                                                                                                                                                                     xxx        |                  
                *                                                                                                                                                                   xxxx        |                  
-                                                           P                                                                                                                      xxxxx        |                  
-                                         \/        \/                   #%#              S    Ss    *  *  *     #         ##      x  x          xx  x            ##*#            xxxxxx        |                  
-        *    #%#*#               \/      []        []                                  M                                         xx  xx        xxx  xx                          xxxxxxx        |                  
-                       \/        []      []        []                                                                           xxx  xxx      xxxx  xxx     \/              \/ xxxxxxxx        |                  
-(                     +[]        []     +[]      ++[]                                       ++        n     ++        ++ ++    xxxx  xxxx    xxxxx  xxxx    []         ++   []xxxxxxxxx        x                  
+                                                   11      P                                                                                                                      xxxxx        |                  
+                                         !i        \/                   #%#              S    Ss    *  *  *     #         ##      x  x          xx  x            ##*#            xxxxxx        |                  
+  M     *    #%#*#               !i      []        []                                                                            xx  xx        xxx  xx                          xxxxxxx        |                  
+                       !i        []      []        []                                                                           xxx  xxx      xxxx  xxx     !i              !i xxxxxxxx        |                  
+(                     +[]        []     +[]      ++[]                                       ++        n     ++        ++ ++    xxxx  xxxx    xxxxx  xxxx    []         ++   []xxxxxxxxx        o                  
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXX   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXX   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         xxxxxxxxxxxxxxxxxx
+         x                x
+         x                x
+         x    $$$$$       x
+         x    =====   00  x
+         x 2          \/  x
+         x    $$$$$   []  x
+         xxxxxxxxxxxxxxxxxx
